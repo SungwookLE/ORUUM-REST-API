@@ -22,9 +22,7 @@ class StockPrice(models.Model):
 
 
 class StockInformation(models.Model):
-    symbol = models.CharField(verbose_name='symbol', max_length=30, primary_key=True, blank=False, default='')
-    #id = models.BigAutoField(help_text="StockInformation id", primary_key=True)
-    #symbol = models.ForeignKey("StockPrice", related_name="stock", on_delete=models.CASCADE, db_column = "symbol")
+    symbol = models.OneToOneField("StockPrice", related_name="stockinformation", on_delete=models.CASCADE, db_column = "symbol", primary_key=True)
     
     update_dt = models.DateTimeField(verbose_name='update_dt', blank=False, auto_now=True)
     create_dt = models.DateTimeField(verbose_name='create_dt', blank=False, auto_now_add=True)
@@ -52,4 +50,4 @@ class StockInformation(models.Model):
     operating_cash_flow = models.FloatField(verbose_name='operating_cash_flow', blank=False, default=0, help_text='영업현금흐름')
 
     def __str__(self): 
-        return self.symbol
+        return str(self.symbol)
