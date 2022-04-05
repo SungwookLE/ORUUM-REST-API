@@ -1,4 +1,4 @@
-"""mysite URL Configuration
+"""backend URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.urls import path, include
+from backend.views import HomeView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('', HomeView.as_view(), name='home'),
+    path('api/', include('api.urls')),
 ]
