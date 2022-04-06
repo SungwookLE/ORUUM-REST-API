@@ -19,8 +19,7 @@ urlpatterns = [
         'get':'list'
     }), name='stockhistory-list'),
     
-    path('stockhistory/<str:symbol>/<date:date>', StockHistory_ViewSet.as_view(
-        actions={
+    path('stockhistory/<str:symbol>/<date:date>', StockHistory_ViewSet.as_view(actions={
             'get':'retrieve'
         }
     ), name='stockhistory-detail'),

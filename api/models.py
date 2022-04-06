@@ -18,7 +18,6 @@ class StockPrice(models.Model): # 오늘의 주식 가격과 전종목 리스트
     high = models.FloatField(verbose_name='high', blank=False, default=0)
     low = models.FloatField(verbose_name='low', blank=False, default=0)
     volume = models.FloatField(verbose_name='volume', blank=False, default=0)
-
     date = models.DateField(verbose_name='date', blank=False, help_text='날짜', default=datetime.today) 
 
     def __str__(self): 
@@ -52,7 +51,6 @@ class StockInformation(models.Model): # 오늘의 주식 정보(전종목)
     operating_income_ratio = models.FloatField(verbose_name='operating_income_ratio', blank=False, default=0, help_text='영업이익률')
     net_income_ratio = models.FloatField(verbose_name='net_income_ratio', blank=False, default=0, help_text='순이익률')
     operating_cash_flow = models.FloatField(verbose_name='operating_cash_flow', blank=False, default=0, help_text='영업현금흐름')
-
     date = models.DateField(verbose_name='date', blank=False, help_text='날짜', default=datetime.today)
 
     def __str__(self): 
