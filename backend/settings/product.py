@@ -1,5 +1,5 @@
 from .base import *
-# 배포보전 수정해야함
+# 배포시 아래 정보 수정해야함('22.4/7)
 
 SECRET_KEY = os.environ['SECRET_KEY']
 
