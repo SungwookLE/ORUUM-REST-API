@@ -6,22 +6,26 @@ from datetime import datetime
 
 class StockPrice(models.Model): # 오늘의 주식 가격과 전종목 리스트
     symbol = models.CharField(verbose_name='symbol', max_length=30, primary_key=True, blank=False, default='')
-    name = models.CharField(verbose_name='name', max_length=50,blank=False, default='')
-    market = models.CharField(verbose_name='market', max_length=50,blank=False, default='')
+    name = models.CharField(verbose_name='name', max_length=50,blank=False, default='', help_text='종목명')
+    market = models.CharField(verbose_name='market', max_length=50,blank=False, default='', help_text='상장사')
     
     update_dt = models.DateTimeField(verbose_name='update_dt', blank=False, auto_now=True)
     create_dt = models.DateTimeField(verbose_name='create_dt', blank=False, auto_now_add=True)
 
-    price = models.FloatField(verbose_name='price', blank=False, default=0)
-    open = models.FloatField(verbose_name='open', blank=False, default=0)
-    prevclose = models.FloatField(verbose_name='prevclose', blank=False, default=0)
-    high = models.FloatField(verbose_name='high', blank=False, default=0)
-    low = models.FloatField(verbose_name='low', blank=False, default=0)
-    volume = models.FloatField(verbose_name='volume', blank=False, default=0)
+    price = models.FloatField(verbose_name='price', blank=False, default=0, help_text='주가')
+    open = models.FloatField(verbose_name='open', blank=False, default=0, help_text='시가')
+    prevclose = models.FloatField(verbose_name='prevclose', blank=False, default=0, help_text='전일가')
+    high = models.FloatField(verbose_name='high', blank=False, default=0, help_text='고가')
+    low = models.FloatField(verbose_name='low', blank=False, default=0, help_text='저가')
+    volume = models.FloatField(verbose_name='volume', blank=False, default=0, help_text='거래량')
     date = models.DateField(verbose_name='date', blank=False, help_text='날짜', default=datetime.today) 
 
     def __str__(self): 
         return self.symbol
+
+    def get_absolute_url(self):
+        return reverse('stockprice-detail', args=(self.symbol))
+
 
 
 class StockInformation(models.Model): # 오늘의 주식 정보(전종목)
@@ -56,6 +60,9 @@ class StockInformation(models.Model): # 오늘의 주식 정보(전종목)
     def __str__(self): 
         return str(self.symbol)
 
+    def get_absolute_url(self):
+        return reverse('stockinformation-detail', args=(self.symbol))
+
 
 # Below: StockHistory Model
 class StockHistory(models.Model): # 모든 종목의 상장 이후 ~ 현재일까지의 주가가 기록된 테이블
@@ -70,12 +77,15 @@ class StockHistory(models.Model): # 모든 종목의 상장 이후 ~ 현재일�
     splits = models.FloatField(verbose_name='spits',null=True, blank=True, help_text='주식분할 내역')
     dividends = models.FloatField(verbose_name='dividends',null=True, blank=True, help_text='배당 내역')
 
-    opens = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="개장가")
-    high = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="고가")
-    low = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="저가")
-    close = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="종가")
-    adj_close = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="조정 종가")
-    volume = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="거래량")
+    opens = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="시가")
+    high = models.FloatField(verbose_name='high', blank=False, default=0, help_text="고가")
+    low = models.FloatField(verbose_name='low', blank=False, default=0, help_text="저가")
+    close = models.FloatField(verbose_name='close', blank=False, default=0, help_text="종가")
+    adj_close = models.FloatField(verbose_name='adj_close', blank=False, default=0, help_text="조정 종가")
+    volume = models.FloatField(verbose_name='volume', blank=False, default=0, help_text="거래량")
 
     def __str__(self): 
         return str(self.symbol)
+
+    def get_absolute_url(self):
+        return reverse('stockhistory-list', args=(self.id))

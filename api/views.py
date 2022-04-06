@@ -11,6 +11,7 @@ from api.serializers import StockPriceSerializers, StockInformationSerializers, 
 from api.models import StockPrice, StockInformation, StockHistory
 
 
+
 class StockPageNumberPagination(PageNumberPagination):
     page_size=10
 
@@ -37,6 +38,7 @@ class StockInformation_RetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView
     queryset = StockInformation.objects.all()
     lookup_field = "symbol"
     serializer_class = StockInformationSerializers
+
 
 class StockHistory_ViewSet(ModelViewSet):
     serializer_class = StockHistorySerializers 
