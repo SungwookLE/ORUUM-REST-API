@@ -58,6 +58,7 @@ class StockInformation(models.Model):
     def __str__(self): 
         return str(self.symbol)
 
+
 # Below: StockHistory Model per each stocks
 class StockHistory(models.Model):
 
@@ -83,6 +84,7 @@ class StockHistory(models.Model):
 
     def __str__(self): 
         return str(self.symbol)
+
 
 class StockHistory_TSLA(StockHistory):
     symbol = models.ForeignKey("StockPrice", related_name="stockhistory_TSLA", on_delete=models.CASCADE, db_column = "symbol")

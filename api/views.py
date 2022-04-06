@@ -1,15 +1,14 @@
 # oruum-rest-api/api/views.py
 
-from turtle import done
+from cgitb import lookup
 from django.shortcuts import render
-from rest_framework import viewsets
-from collections import OrderedDict
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.viewsets import ModelViewSet
 
-from api.serializers import StockPriceSerializers, StockInformationSerializers
-from api.models import StockPrice, StockInformation
+from api.serializers import StockPriceSerializers, StockInformationSerializers, StockHistory_TSLA_Serializers
+from api.models import StockPrice, StockInformation, StockHistory_TSLA
 
 
 class StockPageNumberPagination(PageNumberPagination):
@@ -38,3 +37,15 @@ class StockInformation_RetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView
     queryset = StockInformation.objects.all()
     lookup_field = "symbol"
     serializer_class = StockInformationSerializers
+
+class StockHistory_ViewSet(ModelViewSet):
+    #queryset = StockHistory_TSLA.objects.all()
+    serializer_class = StockHistory_TSLA_Serializers
+    pagination_class = StockPageNumberPagination 
+    lookup_field = "date"
+
+    def get_queryset(self):
+        return StockHistory_TSLA.objects.filter(symbol=self.kwargs["symbol"])
+
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
