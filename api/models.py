@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 from datetime import datetime
 
-class StockPrice(models.Model):
+class StockPrice(models.Model): # 오늘의 주식 가격과 전종목 리스트
     symbol = models.CharField(verbose_name='symbol', max_length=30, primary_key=True, blank=False, default='')
     name = models.CharField(verbose_name='name', max_length=50,blank=False, default='')
     market = models.CharField(verbose_name='market', max_length=50,blank=False, default='')
@@ -19,13 +19,13 @@ class StockPrice(models.Model):
     low = models.FloatField(verbose_name='low', blank=False, default=0)
     volume = models.FloatField(verbose_name='volume', blank=False, default=0)
 
-    date = models.DateField(verbose_name='date', blank=False, help_text='날짜', default=datetime.today)
+    date = models.DateField(verbose_name='date', blank=False, help_text='날짜', default=datetime.today) 
 
     def __str__(self): 
         return self.symbol
 
 
-class StockInformation(models.Model):
+class StockInformation(models.Model): # 오늘의 주식 정보(전종목)
     symbol = models.OneToOneField("StockPrice", related_name="stockinformation", on_delete=models.CASCADE, db_column = "symbol", primary_key=True)
     
     update_dt = models.DateTimeField(verbose_name='update_dt', blank=False, auto_now=True)
@@ -59,12 +59,12 @@ class StockInformation(models.Model):
         return str(self.symbol)
 
 
-# Below: StockHistory Model per each stocks
-class StockHistory(models.Model):
+# Below: StockHistory Model
+class StockHistory(models.Model): # 모든 종목의 상장 이후 ~ 현재일까지의 주가가 기록된 테이블
 
     #id : primary key
     symbol = models.ForeignKey("StockPrice", related_name="stockhistory", on_delete=models.CASCADE, db_column = "symbol")
-    date = models.DateField(verbose_name='date', blank=False, unique=True, help_text='날짜', default=datetime.today)
+    date = models.DateField(verbose_name='date', blank=False, help_text='날짜', default=datetime.today)
     
     update_dt = models.DateTimeField(verbose_name='update_dt', blank=False, auto_now=True)
     create_dt = models.DateTimeField(verbose_name='create_dt', blank=False, auto_now_add=True)
@@ -79,21 +79,5 @@ class StockHistory(models.Model):
     adj_close = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="조정 종가")
     volume = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="거래량")
 
-    class Meta:
-        abstract = True
-
     def __str__(self): 
         return str(self.symbol)
-
-
-class StockHistory_TSLA(StockHistory):
-    symbol = models.ForeignKey("StockPrice", related_name="stockhistory_TSLA", on_delete=models.CASCADE, db_column = "symbol")
-
-class StockHistory_AAPL(StockHistory):
-    symbol = models.ForeignKey("StockPrice", related_name="stockhistory_AAPL", on_delete=models.CASCADE, db_column = "symbol")
-
-class StockHistory_NVDA(StockHistory):
-    symbol = models.ForeignKey("StockPrice", related_name="stockhistory_NVDA", on_delete=models.CASCADE, db_column = "symbol")
-
-class StockHistory_MSFT(StockHistory):
-    symbol = models.ForeignKey("StockPrice", related_name="stockhistory_MSFT", on_delete=models.CASCADE, db_column = "symbol")

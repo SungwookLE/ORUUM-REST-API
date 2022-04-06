@@ -7,8 +7,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
 
-from api.serializers import StockPriceSerializers, StockInformationSerializers, StockHistory_TSLA_Serializers
-from api.models import StockPrice, StockInformation, StockHistory_TSLA
+from api.serializers import StockPriceSerializers, StockInformationSerializers, StockHistorySerializers
+from api.models import StockPrice, StockInformation, StockHistory
 
 
 class StockPageNumberPagination(PageNumberPagination):
@@ -39,13 +39,12 @@ class StockInformation_RetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView
     serializer_class = StockInformationSerializers
 
 class StockHistory_ViewSet(ModelViewSet):
-    #queryset = StockHistory_TSLA.objects.all()
-    serializer_class = StockHistory_TSLA_Serializers
+    serializer_class = StockHistorySerializers 
     pagination_class = StockPageNumberPagination 
     lookup_field = "date"
 
     def get_queryset(self):
-        return StockHistory_TSLA.objects.filter(symbol=self.kwargs["symbol"])
+        return StockHistory.objects.filter(symbol=self.kwargs["symbol"])
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
