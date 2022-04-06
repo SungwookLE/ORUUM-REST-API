@@ -6,8 +6,7 @@ from rest_framework import viewsets
 from collections import OrderedDict
 
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from api.serializers import StockPriceSerializers, StockInformationSerializers
 from api.models import StockPrice, StockInformation
@@ -17,26 +16,25 @@ class StockPageNumberPagination(PageNumberPagination):
     page_size=10
 
 
-class StockPriceListAPIView(ListAPIView):
+class StockPrice_ListCreateAPIView(ListCreateAPIView):
     queryset = StockPrice.objects.all()
     serializer_class = StockPriceSerializers
     pagination_class = StockPageNumberPagination
 
 
-class StockPriceRetrieveAPIView(RetrieveAPIView):
+class StockPrice_RetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = StockPrice.objects.all()
     lookup_field="symbol"
     serializer_class = StockPriceSerializers
-    
 
-    
-class StockInformationListAPIView(ListAPIView):
+
+class StockInformation_ListCreateAPIView(ListCreateAPIView):
     queryset = StockInformation.objects.all()
     serializer_class = StockInformationSerializers
     pagination_class = StockPageNumberPagination
 
 
-class StockInformationRetrieveAPIView(RetrieveAPIView):
+class StockInformation_RetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = StockInformation.objects.all()
     lookup_field = "symbol"
     serializer_class = StockInformationSerializers

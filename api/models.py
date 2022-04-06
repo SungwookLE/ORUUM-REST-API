@@ -1,6 +1,8 @@
 from tabnanny import verbose
+from turtle import update
 from django.db import models
 from django.urls import reverse
+from datetime import datetime
 
 class StockPrice(models.Model):
     symbol = models.CharField(verbose_name='symbol', max_length=30, primary_key=True, blank=False, default='')
@@ -16,6 +18,8 @@ class StockPrice(models.Model):
     high = models.FloatField(verbose_name='high', blank=False, default=0)
     low = models.FloatField(verbose_name='low', blank=False, default=0)
     volume = models.FloatField(verbose_name='volume', blank=False, default=0)
+
+    date = models.DateField(verbose_name='date', blank=False, help_text='날짜', default=datetime.today)
 
     def __str__(self): 
         return self.symbol
@@ -49,5 +53,45 @@ class StockInformation(models.Model):
     net_income_ratio = models.FloatField(verbose_name='net_income_ratio', blank=False, default=0, help_text='순이익률')
     operating_cash_flow = models.FloatField(verbose_name='operating_cash_flow', blank=False, default=0, help_text='영업현금흐름')
 
+    date = models.DateField(verbose_name='date', blank=False, help_text='날짜', default=datetime.today)
+
     def __str__(self): 
         return str(self.symbol)
+
+# Below: StockHistory Model per each stocks
+class StockHistory(models.Model):
+
+    #id : primary key
+    symbol = models.ForeignKey("StockPrice", related_name="stockhistory", on_delete=models.CASCADE, db_column = "symbol")
+    date = models.DateField(verbose_name='date', blank=False, unique=True, help_text='날짜', default=datetime.today)
+    
+    update_dt = models.DateTimeField(verbose_name='update_dt', blank=False, auto_now=True)
+    create_dt = models.DateTimeField(verbose_name='create_dt', blank=False, auto_now_add=True)
+    
+    splits = models.FloatField(verbose_name='spits',null=True, blank=True, help_text='주식분할 내역')
+    dividends = models.FloatField(verbose_name='dividends',null=True, blank=True, help_text='배당 내역')
+
+    opens = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="개장가")
+    high = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="고가")
+    low = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="저가")
+    close = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="종가")
+    adj_close = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="조정 종가")
+    volume = models.FloatField(verbose_name='opens', blank=False, default=0, help_text="거래량")
+
+    class Meta:
+        abstract = True
+
+    def __str__(self): 
+        return str(self.symbol)
+
+class StockHistory_TSLA(StockHistory):
+    symbol = models.ForeignKey("StockPrice", related_name="stockhistory_TSLA", on_delete=models.CASCADE, db_column = "symbol")
+
+class StockHistory_AAPL(StockHistory):
+    symbol = models.ForeignKey("StockPrice", related_name="stockhistory_AAPL", on_delete=models.CASCADE, db_column = "symbol")
+
+class StockHistory_NVDA(StockHistory):
+    symbol = models.ForeignKey("StockPrice", related_name="stockhistory_NVDA", on_delete=models.CASCADE, db_column = "symbol")
+
+class StockHistory_MSFT(StockHistory):
+    symbol = models.ForeignKey("StockPrice", related_name="stockhistory_MSFT", on_delete=models.CASCADE, db_column = "symbol")
