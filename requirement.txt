@@ -1,0 +1,19 @@
+asgiref @ file:///tmp/build/80754af9/asgiref_1625643473416/work
+Bottleneck @ file:///tmp/build/80754af9/bottleneck_1648010766492/work
+certifi==2021.10.8
+Django @ file:///home/conda/feedstock_root/build_artifacts/django_1638897748254/work
+django-cors-headers @ file:///home/conda/feedstock_root/build_artifacts/django-cors-headers_1641858895663/work
+djangorestframework @ file:///home/conda/feedstock_root/build_artifacts/djangorestframework_1639677796037/work
+mkl-fft==1.3.1
+mkl-random @ file:///home/builder/ci_310/mkl_random_1641843545607/work
+mkl-service==2.4.0
+numexpr @ file:///home/builder/ci_310/numexpr_1640791965184/work
+numpy @ file:///tmp/build/80754af9/numpy_and_numpy_base_1639496814640/work
+pandas==1.4.1
+Pillow==9.0.1
+PyMySQL @ file:///home/conda/feedstock_root/build_artifacts/pymysql_1610208984992/work
+python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1626286286081/work
+pytz==2021.3
+six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
+sqlparse @ file:///tmp/build/80754af9/sqlparse_1602184451250/work
+typing_extensions @ file:///opt/conda/conda-bld/typing_extensions_1647553014482/work
