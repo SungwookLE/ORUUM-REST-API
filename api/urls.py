@@ -2,27 +2,26 @@ from django.urls import path, include, register_converter
 from rest_framework import routers
 from api.converters import DateConverter
 
-from api.views import StockPrice_ListCreateAPIView, StockPrice_RetrieveUpdateDestroyAPIView, StockInformation_ListCreateAPIView, StockInformation_RetrieveUpdateDestroyAPIView
-from api.views import StockHistory_ViewSet
+from api.views import Stock_List_CreateAPIView, Stock_List_RetrieveUpdateAPIView, Stock_Information_History_ListCreateAPIView, Stock_Information_History_RetrieveUpdateAPIView, Stock_Price_History_ViewSet
 
 app_name = 'api'
 register_converter(DateConverter, 'date')
 
 urlpatterns = [
-    path('stockprice/', StockPrice_ListCreateAPIView.as_view(), name='stockprice-list'),
-    path('stockprice/<str:symbol>/', StockPrice_RetrieveUpdateDestroyAPIView.as_view(), name='stockprice-detail'),
+    path('stocklist/', Stock_List_CreateAPIView.as_view(), name='stock_list-list'),
+    path('stocklist/<str:ticker>/', Stock_List_RetrieveUpdateAPIView.as_view(), name='stock_list-detail'),
 
-    path('stockinformation/', StockInformation_ListCreateAPIView.as_view(), name='stockinformation-list'),
-    path('stockinformation/<str:symbol>/', StockInformation_RetrieveUpdateDestroyAPIView.as_view(), name='stockinformation-detail'),
+    path('stockinformationhistory/', Stock_Information_History_ListCreateAPIView.as_view(), name='stock_information_history-list'),
+    path('stockinformationhistory/<str:ticker>/', Stock_Information_History_RetrieveUpdateAPIView.as_view(), name='stock_information_history-detail'),
 
-    path('stockhistory/<str:symbol>/', StockHistory_ViewSet.as_view(actions={
+    path('stockpricehistory/<str:ticker>/', Stock_Price_History_ViewSet.as_view(actions={
         'get':'list'
-    }), name='stockhistory-list'),
+    }), name='stock_price_history-list'),
     
-    path('stockhistory/<str:symbol>/<date:date>', StockHistory_ViewSet.as_view(actions={
+    path('stockpricehistory/<str:ticker>/<date:date>', Stock_Price_History_ViewSet.as_view(actions={
             'get':'retrieve'
         }
-    ), name='stockhistory-detail'),
+    ), name='stock_price_history-detail'),
 
 ]
 

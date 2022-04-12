@@ -1,20 +1,21 @@
 # oruum-rest-api/api/serializers.py
 
 from rest_framework import serializers
-from api.models import StockPrice, StockInformation, StockHistory
+from api.models import Stock_List, Stock_Information_History, Stock_Price_History
 
-class StockPriceSerializers(serializers.ModelSerializer):
+
+class StockListSerializers(serializers.ModelSerializer):
     class Meta:
-        model = StockPrice
+        model = Stock_List
         fields = '__all__'
 
-class StockInformationSerializers(serializers.ModelSerializer):
+class StockInformationHistorySerializers(serializers.ModelSerializer):
     class Meta:
-        model = StockInformation
+        model = Stock_Information_History
         fields = '__all__'
 
-class StockHistorySerializers(serializers.ModelSerializer):
+class StockPriceHistorySerializers(serializers.ModelSerializer):
     class Meta:
-        model = StockHistory
+        model = Stock_Price_History
         fields = '__all__'
 

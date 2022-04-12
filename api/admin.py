@@ -1,30 +1,33 @@
 from csv import list_dialects
 from django.contrib import admin
 
-from api.models import StockPrice, StockInformation
-from api.models import StockHistory
+from api.models import Stock_List, Stock_Information_History, Stock_Price_History
+from api.models import User_List, User_Interest, User_Portfolio
 
-@admin.register(StockPrice)
-class StockPriceAdmin(admin.ModelAdmin):
-    list_display = ['symbol','date', 'name', 'market',
-                    'price', 'open', 'prevclose', 'high', 'low', 'volume','update_dt','create_dt']
+@admin.register(Stock_List)
+class StockListAdmin(admin.ModelAdmin):
+    # list_display = ['symbol','date', 'name', 'market',
+    #                 'price', 'open', 'prevclose', 'high', 'low', 'volume','update_dt','create_dt']
+    pass
 
+@admin.register(Stock_Information_History)
+class StockInformationHistoryAdmin(admin.ModelAdmin):
+    pass
+   
 
-@admin.register(StockInformation)
-class StockInformationAdmin(admin.ModelAdmin):
-    list_display = [ 'symbol','date' ,
-                     'total_assets', 'curruent_assets' ,'inventory',
-                     'quick_assets','non_current_assets','investments', 
-                     'tagible_assets', 'liabilities', 'current_liabilities',
-                     'non_current_liabilities', 'total_assets_ratio', 'quick_assets_ratio',
-                     'liabilities_ratio', 'total_revenue','gross_profit','operating_income','net_income',
-                     'total_revenue_ratio','operating_income_ratio','net_income_ratio','operating_cash_flow', 'update_dt','create_dt']
-
-
-@admin.register(StockHistory)
-class StockHistoryAdmin(admin.ModelAdmin):
-    list_display = [ 'symbol', 'date', 
-                     'opens','high','low', 
-                     'close', 'adj_close', 'volume','splits', 'dividends' ,'update_dt','create_dt',
-                   ]
+@admin.register(Stock_Price_History)
+class StockPriceHistoryAdmin(admin.ModelAdmin):
+    pass
     
+    
+@admin.register(User_List)
+class UserListAdmin(admin.ModelAdmin):
+    pass
+    
+@admin.register(User_Interest)
+class UserInterestAdmin(admin.ModelAdmin):
+    pass
+    
+@admin.register(User_Portfolio)
+class UserPortfolioAdmin(admin.ModelAdmin):
+    pass

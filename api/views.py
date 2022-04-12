@@ -4,11 +4,11 @@ from cgitb import lookup
 from django.shortcuts import render
 
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.viewsets import ModelViewSet
 
-from api.serializers import StockPriceSerializers, StockInformationSerializers, StockHistorySerializers
-from api.models import StockPrice, StockInformation, StockHistory
+from api.serializers import StockListSerializers, StockInformationHistorySerializers, StockPriceHistorySerializers
+from api.models import Stock_List, Stock_Information_History, Stock_Price_History
 
 
 
@@ -16,37 +16,37 @@ class StockPageNumberPagination(PageNumberPagination):
     page_size=10
 
 
-class StockPrice_ListCreateAPIView(ListCreateAPIView):
-    queryset = StockPrice.objects.all()
-    serializer_class = StockPriceSerializers
+class Stock_List_CreateAPIView(ListCreateAPIView):
+    queryset = Stock_List.objects.all()
+    serializer_class = StockListSerializers
     pagination_class = StockPageNumberPagination
 
 
-class StockPrice_RetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = StockPrice.objects.all()
-    lookup_field="symbol"
-    serializer_class = StockPriceSerializers
+class Stock_List_RetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = Stock_List.objects.all()
+    lookup_field="ticker"
+    serializer_class = StockListSerializers
 
 
-class StockInformation_ListCreateAPIView(ListCreateAPIView):
-    queryset = StockInformation.objects.all()
-    serializer_class = StockInformationSerializers
+class Stock_Information_History_ListCreateAPIView(ListCreateAPIView):
+    queryset = Stock_Information_History.objects.all()
+    serializer_class = StockInformationHistorySerializers
     pagination_class = StockPageNumberPagination
 
 
-class StockInformation_RetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = StockInformation.objects.all()
-    lookup_field = "symbol"
-    serializer_class = StockInformationSerializers
+class Stock_Information_History_RetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = Stock_Information_History.objects.all()
+    lookup_field = "ticker"
+    serializer_class = StockInformationHistorySerializers
 
 
-class StockHistory_ViewSet(ModelViewSet):
-    serializer_class = StockHistorySerializers 
+class Stock_Price_History_ViewSet(ModelViewSet):
+    serializer_class = StockPriceHistorySerializers 
     pagination_class = StockPageNumberPagination 
     lookup_field = "date"
 
     def get_queryset(self):
-        return StockHistory.objects.filter(symbol=self.kwargs["symbol"])
+        return Stock_Price_History.objects.filter(ticker=self.kwargs["ticker"])
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
