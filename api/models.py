@@ -5,8 +5,8 @@ from django.urls import reverse
 from datetime import datetime
 
 
-class User_List(models.Model): # 모든 유저 회원정보
-    id_user = models.BigAutoField(help_text="id_user_list", primary_key=True, unique=True)
+class User_List(models.Model): # 모든 유저 회원정보, oAuth 연계
+    id_user = models.BigAutoField(help_text="id_user_list", primary_key=True)
     email_address = models.CharField(verbose_name='email_address', max_length=50,blank=False, default='', help_text='메일주소', unique=True)
     first_name = models.CharField(verbose_name='first_name', max_length=50,blank=False, default='', help_text='이름')
     last_name = models.CharField(verbose_name='last_name', max_length=50,blank=False, default='', help_text='성')
@@ -48,9 +48,7 @@ class User_Portfolio(models.Model): # 모든 유저의 유저별 포트폴리오
 
 
 class Stock_List(models.Model): # 오늘의 주식 가격과 전종목 리스트
-    # id = models.BigAutoField(help_text="id_stock_list")
-
-    ticker = models.CharField(verbose_name='ticker', max_length=50, blank=False, null=False, default='', unique=True, help_text="Ticker(Symbol)", primary_key=True)
+    ticker = models.CharField(verbose_name='ticker', primary_key=True , max_length=50, blank=False, null=False, default='', help_text="Ticker(Symbol)")
     update_day = models.DateField(verbose_name='update_day', blank=False, help_text='업데이트 날짜', default=datetime.today) 
     name_english = models.CharField(verbose_name='name_english', max_length=50,blank=False, default='', help_text='주식명(영어)')
     name_korea = models.CharField(verbose_name='name_korea', max_length=50,blank=False, default='', help_text='주식명(한국어)')
@@ -112,7 +110,7 @@ class Stock_Information_History(models.Model): # 그 동안의 주식 실적 정
 class Stock_Price_History(models.Model): # 모든 종목의 상장 이후 ~ 현재일까지의 주가가 기록된 테이블
 
     id = models.BigAutoField(help_text="id_stock_price_history", primary_key=True)
-    ticker = models.ForeignKey("Stock_List", related_name="stockhistory", on_delete=models.CASCADE, db_column = "ticker")
+    ticker = models.ForeignKey("Stock_List", related_name="stock_price_history", on_delete=models.CASCADE, db_column = "ticker")
     update_day = models.DateField(verbose_name='update_day', blank=False, help_text='날짜', default=datetime.today)
     
     price_open = models.FloatField(verbose_name='price_open', blank=False, default=0, help_text="시가")
