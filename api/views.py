@@ -37,11 +37,16 @@ class Stock_Information_History_ListCreateAPIView(ListCreateAPIView):
     pagination_class = StockPageNumberPagination
 
 
-class Stock_Information_History_RetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class Stock_Information_History_ViewSet(ModelViewSet):
     queryset = Stock_Information_History.objects.all()
-    lookup_field = "ticker"
+    lookup_field = "date"
     serializer_class = StockInformationHistorySerializers
 
+    def get_queryset(self):
+        return Stock_Information_History.objects.filter(ticker=self.kwargs["ticker"])
+
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 class Stock_Price_History_ViewSet(ModelViewSet):
     serializer_class = StockPriceHistorySerializers 

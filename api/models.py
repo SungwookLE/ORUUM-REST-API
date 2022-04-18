@@ -16,6 +16,9 @@ class User_List(models.Model): # 모든 유저 회원정보, oAuth 연계
 
     def __str__(self): 
         return str(self.id_user)
+    
+    def get_absolute_url(self):
+        return reverse('user_list-detail', args=(self.id_user))
 
 
 class User_Interest(models.Model): # 모든 유저의 유저별 관심종목
@@ -103,8 +106,8 @@ class Stock_Information_History(models.Model): # 그 동안의 주식 실적 정
     def __str__(self): 
         return str(self.id)
 
-    def get_absolute_url(self):
-        return reverse('stock_information_history-detail', args=(self.id))
+    # def get_absolute_url(self):
+    #     return reverse('stock_information_history-detail', args=(self.ticker))
 
 
 class Stock_Price_History(models.Model): # 모든 종목의 상장 이후 ~ 현재일까지의 주가가 기록된 테이블
@@ -129,5 +132,5 @@ class Stock_Price_History(models.Model): # 모든 종목의 상장 이후 ~ 현�
     def __str__(self): 
         return str(self.id)
 
-    def get_absolute_url(self):
-        return reverse('stock_price_history-detail', args=(self.id))
+    # def get_absolute_url(self):
+    #     return reverse('stock_price_history-detail', args=(self.ticker))
