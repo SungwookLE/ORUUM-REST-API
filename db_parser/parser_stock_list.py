@@ -1,4 +1,3 @@
-
 # file name : parser_stock_list.py
 # pwd : /db_parser/parser_stock_list.py
 
@@ -17,8 +16,8 @@ class parser_stock_list:
     def __init__(self):
         self.database = dbModule.Database()
         self.base_url = 'https://yfapi.net'
-        self.yahoofinance_api_key = 'B4MH0ErsUBavxjrK6p9bc3sKimfki0my2rvREKtd'  # @google 계정 api 키
-        # self.yahoofinance_api_key = 'Y6hHjQsoax7rghXMy9EDTwVIXRDhpJT7b5eHCvfg' #@naver 계정 api 키
+        # self.yahoofinance_api_key = 'B4MH0ErsUBavxjrK6p9bc3sKimfki0my2rvREKtd'  # @google 계정 api 키
+        self.yahoofinance_api_key = 'Y6hHjQsoax7rghXMy9EDTwVIXRDhpJT7b5eHCvfg' #@naver 계정 api 키
 
         '''
         # KRX stock symbol list
@@ -36,21 +35,37 @@ class parser_stock_list:
     def symbol_list(self):
         return self.stocks_list["Symbol"]
 
+
+
+    def get_dict_value(df, key, opt='str'):
+        if opt!='str':
+            temp = (lambda x: 0 if x is None else x)(df.get(key))
+        else:
+            temp = (lambda x: "" if x is None else x)(df.get(key))
+
+        if type(temp) == str:
+            return re.sub(r"[^a-zA-Z0-9가-힣]", "", temp)
+        else:
+            return temp
+
     def update_stockquote_from_yahooapi(self, market):
         self.stocks_list = fdr.StockListing(market)  # 나스닥일 경우 4608종목
         url = self.base_url + "/v6/finance/quote"
         series = self.stocks_list[["Symbol", "Name"]]
-
         pbar = tqdm(series)
         pbar.set_description("yFinance API 종목 호출")
 
         while (series.empty is not True):
             # yahoo finance api에서 한번에 불러올 수 있는 종목 리스트의 개수 limit: 1000개 언저리인듯
-            series_iter = series.iloc[0:1000]
+            series_iter = series.iloc[0:500]
 
             query_symbols = ''
-            for _, value in series_iter.iterrows():
-                query_symbols += value["Symbol"]+","
+            if market == "KOSPI":
+                for _, value in series_iter.iterrows():
+                    query_symbols += value["Symbol"]+".KS,"
+            else:
+                for _, value in series_iter.iterrows():
+                    query_symbols += value["Symbol"]+","
 
             querystring = {"symbols": query_symbols}
             headers = {
@@ -68,24 +83,26 @@ class parser_stock_list:
                         pbar.update(1)
                         sql = """
                         INSERT INTO
-                        `api_stock_list` (`ticker`, `update_day`, `name_english`, `market`, `price`, `price_open`, `price_high`, `price_low`, `name_korea`, `prevclose`, `volume`, `update_dt`, `create_dt`) 
+                        `api_stock_list` (`ticker`, `update_date`, `name_english`, `market`, `price`, `price_open`, `price_high`, `price_low`, `name_korea`, `prevclose`, `volume`, `update_dt`, `create_dt`) 
                         VALUES ('%s', '%s', '%s', '%s', '%f', '%f', '%f', '%f', '%s', '%f','%f', '%s', '%s');
-                        """ % (yFinance_iter["symbol"], datetime.date.today(), re.sub(r"[^a-zA-Z0-9]", "", yFinance_iter["longName"])[0:50],
-                               yFinance_iter["fullExchangeName"], yFinance_iter["regularMarketPrice"], yFinance_iter[
-                                   "regularMarketOpen"], yFinance_iter["regularMarketDayHigh"],
-                               yFinance_iter["regularMarketDayLow"], re.sub(r"[^a-zA-Z0-9]", "", fDataReader_iter[1]["Name"])[0:50], yFinance_iter["regularMarketPreviousClose"], yFinance_iter["regularMarketVolume"], datetime.datetime.now(), datetime.datetime.now())
+                        """ % (yFinance_iter["symbol"], datetime.date.today(), parser_stock_list.get_dict_value(yFinance_iter, "longName")[0:50],
+                               parser_stock_list.get_dict_value(yFinance_iter,"fullExchangeName"), parser_stock_list.get_dict_value(yFinance_iter,"regularMarketPrice",'float'), 
+                               parser_stock_list.get_dict_value(yFinance_iter,"regularMarketOpen",'float'), parser_stock_list.get_dict_value(yFinance_iter,"regularMarketDayHigh",'float'),
+                               parser_stock_list.get_dict_value(yFinance_iter,"regularMarketDayLow",'float'), parser_stock_list.get_dict_value(fDataReader_iter[1],"Name")[0:50], 
+                               parser_stock_list.get_dict_value(yFinance_iter,"regularMarketPreviousClose",'float'), parser_stock_list.get_dict_value(yFinance_iter,"regularMarketVolume",'float'),
+                               datetime.datetime.now(), datetime.datetime.now())
 
                         self.database.execute(sql)
                         self.database.commit()
 
                     except KeyError as e:
-                        print(
-                            "response key:{} is not existed.\n continued..".format(e))
+                        print("response key:{} is not existed.\n continued..".format(e))
 
                     except pymysql.err.IntegrityError as e:
-                        print(e.args[0])
-                        # 중복된 pk가 있어 db에 insert 하지 못하는 경우엔 update를 한다.
+                        #print(e.args[0])
+                        # 중복된 pk 가 있어 db에 insert 하지 못하는 경우엔 update를 한다.
                         if (e.args[0] == 1062):
+                            pbar.update(1)
                             sql = """
                             SELECT `update_dt` FROM `api_stock_list` WHERE `ticker`='%s' 
                             """ % yFinance_iter["symbol"]
@@ -98,14 +115,17 @@ class parser_stock_list:
                                 pass
                             else:
                                 sql = """
-                                UPDATE `api_stock_list` SET `update_day` = '%s', `price`= '%f', 
+                                UPDATE `api_stock_list` SET `update_date` = '%s', `price`= '%f', 
                                     `price_open`= '%f', `price_high`= '%f', `price_low`= '%f', 
                                     `prevclose`= '%f', `volume`= '%f', `update_dt`= '%s'
                                 WHERE `ticker`='%s'
-                                """ % (datetime.date.today(), yFinance_iter["regularMarketPrice"], yFinance_iter["regularMarketOpen"],
-                                       yFinance_iter["regularMarketDayHigh"], yFinance_iter[
-                                           "regularMarketDayLow"], yFinance_iter["regularMarketPreviousClose"],
-                                       yFinance_iter["regularMarketVolume"], datetime.datetime.now(), yFinance_iter["symbol"])
+                                """ % (datetime.date.today(), parser_stock_list.get_dict_value(yFinance_iter,"regularMarketPrice",'float'),
+                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketOpen",'float'),
+                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketDayHigh",'float'),
+                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketDayLow",'float'),
+                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketPreviousClose",'float'),
+                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketVolume",'float'),
+                                       datetime.datetime.now(), yFinance_iter["symbol"])
 
                                 self.database.execute(sql)
                                 self.database.commit()
@@ -120,4 +140,4 @@ class parser_stock_list:
 
 if __name__ == "__main__":
     parser = parser_stock_list()
-    parser.update_stockquote_from_yahooapi("NASDAQ")
+    parser.update_stockquote_from_yahooapi("KOSPI")

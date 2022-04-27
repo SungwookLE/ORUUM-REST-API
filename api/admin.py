@@ -6,8 +6,7 @@ from api.models import User_List, User_Interest, User_Portfolio
 
 @admin.register(Stock_List)
 class StockListAdmin(admin.ModelAdmin):
-    # list_display = ['symbol','date', 'name', 'market',
-    #                 'price', 'open', 'prevclose', 'high', 'low', 'volume','update_dt','create_dt']
+    list_display = ['ticker','price','update_dt']
     pass
 
 @admin.register(Stock_Information_History)
