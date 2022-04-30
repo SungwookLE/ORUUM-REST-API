@@ -20,7 +20,8 @@ from backend.views import HomeView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     path('', HomeView.as_view(), name='home'),
     path('api/', include('api.urls')),
+    path('accounts/', include('allauth.urls')), ## oauth
 ]
+

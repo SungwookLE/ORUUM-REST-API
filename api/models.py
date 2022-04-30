@@ -4,48 +4,6 @@ from django.db import models
 from django.urls import reverse
 from datetime import datetime
 
-
-class User_List(models.Model): # 모든 유저 회원정보, oAuth 연계
-    id_user = models.BigAutoField(help_text="id_user_list", primary_key=True)
-    email_address = models.CharField(unique=True, max_length=50, default='', help_text='메일주소')
-    first_name = models.CharField(max_length=50, default='', help_text='이름')
-    last_name = models.CharField(max_length=50, default='', help_text='성')
-
-    update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
-    create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
-
-    def __str__(self): 
-        return str(self.email_address)
-    
-class User_Interest(models.Model): # 모든 유저의 유저별 관심종목
-    id = models.BigAutoField(help_text="id_user_interest", primary_key=True)
-    id_user = models.ForeignKey("User_List", related_name="user_interest", on_delete=models.CASCADE, db_column = "id_user")
-    ticker = models.ForeignKey("Stock_List", related_name="user_interest", on_delete=models.CASCADE, db_column = "ticker")
-
-    update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
-    create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
-
-    def __str__(self): 
-        return str(self.id) + "@" + str(self.id_user)
-
-
-class User_Portfolio(models.Model): # 모든 유저의 유저별 포트폴리오
-    id = models.BigAutoField(help_text="id_user_portfolio", primary_key=True)
-    id_user = models.ForeignKey("User_List", related_name="user_portfolio", on_delete=models.CASCADE, db_column = "id_user")
-    ticker = models.ForeignKey("Stock_List", related_name="user_portfolio", on_delete=models.CASCADE, db_column = "ticker")
-    number_stock = models.IntegerField(blank=True, null=True, help_text='보유수량')
-    average_price = models.FloatField(blank=True, null=True, help_text='평균매입가')
-    price_earning_ratio = models.FloatField(blank=True, null=True, help_text='주가수익률')
-    price_return_won = models.FloatField(blank=True, null=True, help_text='수익금(원)')
-    price_return_dollar = models.FloatField(blank=True, null=True, help_text='수익금(달러)')
-
-    update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
-    create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
-
-    def __str__(self): 
-        return str(self.id) + "@" + str(self.id_user) 
-
-
 class Stock_List(models.Model): # 오늘의 주식 가격과 전종목 리스트
     ticker = models.CharField(primary_key=True , max_length=20, help_text="Ticker(Symbol)")
     update_date = models.DateField(help_text='업데이트 날짜', default=datetime.today) 
@@ -65,10 +23,12 @@ class Stock_List(models.Model): # 오늘의 주식 가격과 전종목 리스트
     update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
     create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
 
-    def __str__(self): 
-        return str(self.ticker)
     class Meta:
         ordering = ['ticker']
+
+    def __str__(self): 
+        return str(self.ticker)
+    
 
 class Stock_Information_History(models.Model): # 그 동안의 주식 실적 정보(전종목)
     id = models.BigAutoField(help_text="id_stock_information_history", primary_key=True)
@@ -100,9 +60,12 @@ class Stock_Information_History(models.Model): # 그 동안의 주식 실적 정
     update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
     create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
 
+    class Meta:
+        ordering = ['-update_date', 'ticker']
+
     def __str__(self): 
         return str(self.ticker) +"@" + str(self.update_date)
-
+    
     # def get_absolute_url(self):
     #     return reverse('stock_information_history-detail', args=(self.ticker))
 
@@ -125,6 +88,11 @@ class Stock_Price_History(models.Model): # 모든 종목의 상장 이후 ~ 현�
 
     update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
     create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-update_date', 'ticker']
     
     def __str__(self): 
         return str(self.ticker)+"@" + str(self.update_date)
+
+    

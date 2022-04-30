@@ -13,7 +13,7 @@ from api.serializers import StockListSerializers, StockInformationHistorySeriali
 from api.models import Stock_List, Stock_Information_History, Stock_Price_History
 
 from api.serializers import UserListSerializers, UserInterestSerializers, UserPortfolioSerializers
-from api.models import User_List, User_Interest, User_Portfolio
+from accounts.models import User_List, User_Interest, User_Portfolio
 
 
 class StockPageNumberPagination(PageNumberPagination):
@@ -86,7 +86,6 @@ class Stock_Price_History_RetrieveAPIView(RetrieveAPIView):
 
 class UserPageNumberPagination(PageNumberPagination):
     page_size=10    
-
 
 class User_List_ListAPIView(ListAPIView):
     queryset = User_List.objects.all()

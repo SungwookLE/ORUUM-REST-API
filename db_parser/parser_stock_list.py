@@ -140,4 +140,4 @@ class parser_stock_list:
 
 if __name__ == "__main__":
     parser = parser_stock_list()
-    parser.update_stockquote_from_yahooapi("KOSPI")
+    parser.update_stockquote_from_yahooapi("NASDAQ")
