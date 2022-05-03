@@ -13,9 +13,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
 
     'api.apps.ApiConfig',
     'accounts.apps.AccountsConfig',
+    'dashboard.apps.DashboardConfig',
     'rest_framework',
     
     # CORS
@@ -32,12 +34,12 @@ LOGIN_REDIRECT_URL = '/' # 로그인 후 리다이렉트 될 경로
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True # 로그아웃 버튼 클릭 시 자동 로그아웃
 
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-ACCOUNT_EMAIL_REQUIRED = True
+#ACCOUNT_AUTHENTICATION_METHOD = 'email'
+#ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+#ACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_AUTO_SIGNUP = False
 
-ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
+#ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #############카카오 oauth#############
 
@@ -147,3 +149,4 @@ CORS_ORIGIN_ALLOW_ALL = True
 '''
 
 AUTH_USER_MODEL = 'accounts.User_List' #abstractUser 상속한 커스텀 유저인증모델
+X_FRAME_OPTIONS = 'SAMEORIGIN' #plotly dash

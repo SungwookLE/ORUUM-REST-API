@@ -7,7 +7,10 @@ class User_List(AbstractUser):
 
     update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
     create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
-    REQUIRED_FIELDS = ["email"] # 회원 가입 시 이메일 입력을 필수로 한다.
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
+    REQUIRED_FIELDS = ["email", "first_name", "last_name"] # 회원 가입 시 이메일 입력을 필수로 한다.
     
     class Meta:
         verbose_name_plural = "User_lists"

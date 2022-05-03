@@ -23,5 +23,7 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('api/', include('api.urls')),
     path('accounts/', include('allauth.urls')), ## oauth
+    path('dashboard/', include('dashboard.urls')),
+    path('django_plotly_dash/', include('django_plotly_dash.urls')),
 ]
 

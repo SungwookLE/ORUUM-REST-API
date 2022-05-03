@@ -17,8 +17,8 @@ class parser_stock_list:
         self.database = dbModule.Database()
         self.base_url = 'https://yfapi.net'
         # self.yahoofinance_api_key = 'B4MH0ErsUBavxjrK6p9bc3sKimfki0my2rvREKtd'  # @google 계정 api 키
-        self.yahoofinance_api_key = 'Y6hHjQsoax7rghXMy9EDTwVIXRDhpJT7b5eHCvfg' #@naver 계정 api 키
-
+        # self.yahoofinance_api_key = 'Y6hHjQsoax7rghXMy9EDTwVIXRDhpJT7b5eHCvfg' #@naver 계정 api 키
+        self.yahoofinance_api_key = 'e0mzom5Zj566VYXBngUMT2s91vsViidp8SXEuoJG' #@daum
         '''
         # KRX stock symbol list
         stocks = fdr.StockListing('KRX') # 코스피, 코스닥, 코넥스 전체
