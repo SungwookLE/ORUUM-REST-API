@@ -2,7 +2,6 @@ from pathlib import Path
 import os
 from django.urls import reverse_lazy
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Application definition
@@ -13,41 +12,52 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
 
     'api.apps.ApiConfig',
     'accounts.apps.AccountsConfig',
     'dashboard.apps.DashboardConfig',
+
+    # REST Framework
     'rest_framework',
     
-    # CORS
+    # ========================================
+    # CORS: Crosss-Origin Resource Sharing)
+    # 웹 페이지 상의 제한된 리소스를 최초 자원이 서비스된 도메인(REST API) 밖의 다른 도메인(FRONT)으로부터 요청할 수 있게 허용하는 구조
     'corsheaders',
+    # ========================================
 
-    #allauth
+    # ========================================
+    # 카카오톡 소셜 로그인 관련 부분
+    'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.kakao', #provider 구글 페이스북 카톡 깃허브 등 소셜로그인 제공업체
+    # provider setting
+    'allauth.socialaccount.providers.kakao',
+    # ========================================
+
+    # ========================================
+    # dash, plottly
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    # ========================================
 ]
-#############카카오 oauth#############
+
+# ========================================
+# 카카오 소셜 로그인을 위한 세팅 환경 변수 선언
+SITE_ID=1
 LOGIN_REDIRECT_URL = '/' # 로그인 후 리다이렉트 될 경로
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True # 로그아웃 버튼 클릭 시 자동 로그아웃
-
-#ACCOUNT_AUTHENTICATION_METHOD = 'email'
-#ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-#ACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_AUTO_SIGNUP = False
+ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
+# ========================================
 
-#ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-#############카카오 oauth#############
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # CORS
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # CORS
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -68,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
                 # `allauth` needs this from django
                 'django.template.context_processors.request',
             ],
@@ -76,23 +87,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'oruum_db',
-#         'USER': 'root',
-#         'PASSWORD': '3102',
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306',
-#     }
-# }
-
-# Password validation
-# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -110,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-    #Needed to login by username in Django admin, regardless of 'allauth'
+    # Needed to login by username in Django admin, regardless of 'allauth'
     'django.contrib.auth.backends.ModelBackend',
     # 'allauth' specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -118,35 +112,28 @@ AUTHENTICATION_BACKENDS = (
 
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Asia/Seoul'
-
 USE_I18N = True
-
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ========================================
+# CORS 설정
+# CORS_ORIGIN_ALLOW_ALL: If True, all origins will be accepted (not use the whitelist below). Defaults to False.
+# CORS_ORIGIN_WHITELIST: List of origins that are authorized to make cross-site HTTP requests. Defaults to [].
+CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:8000', 'http://localhost:8000']
 CORS_ORIGIN_ALLOW_ALL = True
-'''
-    CORS_ORIGIN_ALLOW_ALL: If True, all origins will be accepted (not use the whitelist below). Defaults to False.
-    CORS_ORIGIN_WHITELIST: List of origins that are authorized to make cross-site HTTP requests. Defaults to [].
+# ========================================
 
-    CORS_ORIGIN_WHITELIST = (
-        'http://localhost:8081',
-    )
+# ========================================
+# 장고의 default 유저 모델인 abstractUser를 상속시켜 만든 커스텀 모델을 default 모델로 사용을 원할 경우, 모델을 지정해주어야 함
+AUTH_USER_MODEL = 'accounts.User_List' 
+# ========================================
 
-'''
-
-AUTH_USER_MODEL = 'accounts.User_List' #abstractUser 상속한 커스텀 유저인증모델
-X_FRAME_OPTIONS = 'SAMEORIGIN' #plotly dash
+# ========================================
+# plotly dash
+X_FRAME_OPTIONS = 'SAMEORIGIN' 
+# ========================================

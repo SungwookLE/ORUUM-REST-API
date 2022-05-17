@@ -4,7 +4,12 @@ from django.db import models
 from django.urls import reverse
 from datetime import datetime
 
-class Stock_List(models.Model): # 오늘의 주식 가격과 전종목 리스트
+class Stock_List(models.Model): 
+    """ 오늘의 주식 가격과 전종목 리스트
+    pk = "ticker"
+    columns = ["update_date", "name_english", "name_korea", "market", "price", "price_open", "prevclose", "price_high", "price_low", "volume", "update_dt", "create_dt"]
+    """
+
     ticker = models.CharField(primary_key=True , max_length=20, help_text="Ticker(Symbol)")
     update_date = models.DateField(help_text='업데이트 날짜', default=datetime.today) 
 
@@ -30,7 +35,18 @@ class Stock_List(models.Model): # 오늘의 주식 가격과 전종목 리스트
         return str(self.ticker)
     
 
-class Stock_Information_History(models.Model): # 그 동안의 주식 실적 정보(전종목)
+class Stock_Information_History(models.Model): 
+    """ 주식 실적 정보 히스토리
+    pk = "id"
+    columns = ["ticker", "update_date", "total_assets", "curruent_assets", "inventory", "quick_assets"
+    , "non_current_assets", "investments", "tagible_assets", "liabilities", "current_liabilities", "non_current_liabilities"
+    , "total_assets_ratio", "quick_assets_ratio", "liabilities_ratio", "total_revenue", "gross_profit", "operating_income"
+    , "net_income", "total_revenue_ratio", "operating_income_ratio", "net_income_ratio", "operating_cash_flow"
+    , "update_dt", "create_dt"]
+    
+    note: 종목마다 재무정보 항목에 차이가 있어, json filed로 변경해달라는 요청 있음
+    """
+
     id = models.BigAutoField(help_text="id_stock_information_history", primary_key=True)
     ticker = models.ForeignKey("Stock_List", related_name="stock_information_history", on_delete=models.CASCADE, db_column = "ticker")
     update_date = models.DateField(verbose_name='date', help_text='업데이트 날짜', default=datetime.today)
@@ -64,13 +80,18 @@ class Stock_Information_History(models.Model): # 그 동안의 주식 실적 정
         ordering = ['-update_date', 'ticker']
 
     def __str__(self): 
-        return str(self.ticker) +"@" + str(self.update_date)
+        return str(self.id)
     
     # def get_absolute_url(self):
     #     return reverse('stock_information_history-detail', args=(self.ticker))
 
-
-class Stock_Price_History(models.Model): # 모든 종목의 상장 이후 ~ 현재일까지의 주가가 기록된 테이블
+class Stock_Price_History(models.Model): 
+    """ 종목의 상장 이후 부터 현재까지 주가 히스토리
+    pk = "id"
+    columns = ["ticker", "update_date", "price_open", "price_high", "price_low", "price_close"
+    , "adj_close", "volume", "splits", "dividends", "update_dt", "create_dt"]
+    
+    """
 
     id = models.BigAutoField(help_text="id_stock_price_history", primary_key=True)
     ticker = models.ForeignKey("Stock_List", related_name="stock_price_history", on_delete=models.CASCADE, db_column = "ticker")
@@ -93,6 +114,6 @@ class Stock_Price_History(models.Model): # 모든 종목의 상장 이후 ~ 현�
         ordering = ['-update_date', 'ticker']
     
     def __str__(self): 
-        return str(self.ticker)+"@" + str(self.update_date)
+        return str(self.id)
 
     
