@@ -29,14 +29,6 @@ urlpatterns = [
 
     path('userinterest/', User_Interest_ListAPIView.as_view(), name='user_interest-list'),
     path('userportfolio/', User_Portfolio_ListAPIView.as_view(), name='user_portfolio-list'),
-
 ]
-### TEST: urls.py
-"""
-    path('my_test_url/<str:ticker>/', my_test_url, name='my_test'),
-    path('my_test_spark/<str:ticker>/<date:s_date>-<date:e_date>/', my_test_spark, name='my_test'),
 
-    path('my_test2_url/<str:ticker>/<date:s_date>-<date:e_date>/', my_test2_url.as_view(), name='my_test2'),
-    path('my_test3_url/<str:ticker>/', my_test3_url.as_view(), name='my_test3_list'),
-"""
 

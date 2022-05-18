@@ -1,7 +1,8 @@
 from django.urls import path, include
-from dashboard.views import dash_page
+from dashboard.views import dash_page, plotly_page
 
 app_name='dashboard'
 urlpatterns = [
-    path('', dash_page, name ="my_dash"),
+    path('plotly/', plotly_page, name ="my_plotly"),
+    path('dash/', dash_page, name ="my_dash"),
 ]
