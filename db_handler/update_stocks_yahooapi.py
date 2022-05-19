@@ -1,16 +1,22 @@
 #  file: db_handler/update_stocks_yahooapi.py
 
+import FinanceDataReader as fdr
+import os
+import sys
+
+import django
 import requests  # for request API request
 
 from tqdm import tqdm
 import dbModule
 import datetime
 import re
-import pymysql
-import json
 
-# load stock list with symbol, name arond the market
-import FinanceDataReader as fdr
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.develop")
+django.setup()
+from api.models import StockList, StockInformationHistory, StockPriceHistory
 
 
 class UpdateStocksFromYahooapi:
@@ -52,11 +58,12 @@ class UpdateStocksFromYahooapi:
             return temp
 
     def update_stockquote_from_yahooapi(self, market):
-        self.stocks_list = fdr.StockListing(market)  # 나스닥일 경우 4608종목
+        self.stocks_list = fdr.StockListing(market)
         url = self.base_url + "/v6/finance/quote"
         series = self.stocks_list[["Symbol", "Name"]]
+
         pbar = tqdm(series)
-        pbar.set_description("yFinance API 종목 호출")
+        pbar.set_description("yFinance API")
 
         while (series.empty is not True):
             # yahoo finance api에서 한번에 불러올 수 있는 종목 리스트의 개수 limit: 1000개 언저리인듯
@@ -83,69 +90,43 @@ class UpdateStocksFromYahooapi:
             try:
                 for yFinance_iter, fDataReader_iter in zip(self.patch_result["quoteResponse"]["result"], series_iter.iterrows()):
                     try:
-                        pbar.update(1)
-                        sql = """
-                        INSERT INTO
-                        `api_stocklist` (`ticker`, `update_date`, `name_english`, `market`, `price`, `price_open`, `price_high`, `price_low`, `name_korea`, `prevclose`, `volume`, `update_dt`, `create_dt`) 
-                        VALUES ('%s', '%s', '%s', '%s', '%f', '%f', '%f', '%f', '%s', '%f','%f', '%s', '%s');
-                        """ % (yFinance_iter["symbol"], datetime.date.today(), UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "longName")[0:50],
-                               UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "fullExchangeName"), UpdateStocksFromYahooapi.get_dict_value(
-                                   yFinance_iter, "regularMarketPrice", 'float'),
-                               UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketOpen", 'float'), UpdateStocksFromYahooapi.get_dict_value(
-                                   yFinance_iter, "regularMarketDayHigh", 'float'),
-                               UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketDayLow", 'float'), UpdateStocksFromYahooapi.get_dict_value(
-                                   fDataReader_iter[1], "Name")[0:50],
-                               UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPreviousClose", 'float'), UpdateStocksFromYahooapi.get_dict_value(
-                                   yFinance_iter, "regularMarketVolume", 'float'),
-                               datetime.datetime.now(), datetime.datetime.now())
+                        obj = StockList.objects.get(
+                            ticker=yFinance_iter["symbol"])
+                        obj.update_date = datetime.date.today()
 
-                        self.database.execute(sql)
-                        self.database.commit()
+                        obj.price = UpdateStocksFromYahooapi.get_dict_value(
+                            yFinance_iter, "regularMarketPrice", 'float')
+
+                        obj.price_open = UpdateStocksFromYahooapi.get_dict_value(
+                            yFinance_iter, "regularMarketOpen", 'float')
+
+                        obj.price_high = UpdateStocksFromYahooapi.get_dict_value(
+                            yFinance_iter, "regularMarketDayHigh", 'float')
+
+                        obj.price_low = UpdateStocksFromYahooapi.get_dict_value(
+                            yFinance_iter, "regularMarketDayLow", 'float')
+
+                        obj.prevclose = UpdateStocksFromYahooapi.get_dict_value(
+                            yFinance_iter, "regularMarketPreviousClose", 'float')
+
+                        obj.volume = UpdateStocksFromYahooapi.get_dict_value(
+                            yFinance_iter, "regularMarketVolume", 'float')
+
+                        obj.save()
+                        pbar.update(1)
+
+                    except StockList.DoesNotExist:
+                        StockList.objects.create(ticker=yFinance_iter["symbol"], update_date=datetime.date.today(), name_english=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "longName")[0:50], name_korea=UpdateStocksFromYahooapi.get_dict_value(fDataReader_iter[1], "Name")[0:50], market=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "fullExchangeName"), price=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPrice", 'float'), price_open=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketOpen", 'float'), price_high=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketDayHigh", 'float'), price_low=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketDayLow", 'float'), prevclose=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPreviousClose", 'float'), volume=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketVolume", 'float')
+                                                 )
+                        pbar.update(1)
 
                     except KeyError as e:
                         print(
-                            "response key:{} is not existed.\n continued..".format(e))
-
-                    except pymysql.err.IntegrityError as e:
-                        #print(e.args[0])
-                        # 중복된 pk 가 있어 db에 insert 하지 못하는 경우엔 update를 한다.
-                        if (e.args[0] == 1062):
-                            pbar.update(1)
-                            sql = """
-                            SELECT `update_dt` FROM `api_stocklist` WHERE `ticker`='%s' 
-                            """ % yFinance_iter["symbol"]
-                            rows = self.database.executeAll(sql)
-                            timedelta = datetime.datetime.now() - \
-                                rows[0]["update_dt"]
-
-                            if (timedelta < datetime.timedelta(seconds=600)):
-                                #print(timedelta) # 최종업데이트된 시간이 10분 이내라면, db업데이트 하지 않고 pass
-                                pass
-                            else:
-                                sql = """
-                                UPDATE `api_stocklist` SET `update_date` = '%s', `price`= '%f', 
-                                    `price_open`= '%f', `price_high`= '%f', `price_low`= '%f', 
-                                    `prevclose`= '%f', `volume`= '%f', `update_dt`= '%s'
-                                WHERE `ticker`='%s'
-                                """ % (datetime.date.today(), UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPrice", 'float'),
-                                       UpdateStocksFromYahooapi.get_dict_value(
-                                           yFinance_iter, "regularMarketOpen", 'float'),
-                                       UpdateStocksFromYahooapi.get_dict_value(
-                                           yFinance_iter, "regularMarketDayHigh", 'float'),
-                                       UpdateStocksFromYahooapi.get_dict_value(
-                                           yFinance_iter, "regularMarketDayLow", 'float'),
-                                       UpdateStocksFromYahooapi.get_dict_value(
-                                           yFinance_iter, "regularMarketPreviousClose", 'float'),
-                                       UpdateStocksFromYahooapi.get_dict_value(
-                                           yFinance_iter, "regularMarketVolume", 'float'),
-                                       datetime.datetime.now(), yFinance_iter["symbol"])
-
-                                self.database.execute(sql)
-                                self.database.commit()
+                            "response key:{} is not existed.\ncontinued..".format(e))
 
             except KeyError as e:
                 print(
-                    "response에 key:{} is not existed, so exit the program.\nCause: Yahoo API Call Limit".format(e))
+                    "response에 key:{} is not existed.\nMaybe: Yahoo API Call Limit".format(e))
                 break  # 일일 최대 호출 회수를 초과하면 request해도 response가 옳바르게 오지 않는다.
 
         return
