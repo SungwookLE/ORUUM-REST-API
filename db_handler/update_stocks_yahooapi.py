@@ -66,8 +66,8 @@ class UpdateStocksFromYahooapi:
         pbar.set_description("yFinance API")
 
         while (series.empty is not True):
-            # yahoo finance api에서 한번에 불러올 수 있는 종목 리스트의 개수 limit: 1000개 언저리인듯
-            series_iter = series.iloc[0:500]
+            maximum_number_of_stocks_loaded_at_once = 500
+            series_iter = series.iloc[0:maximum_number_of_stocks_loaded_at_once]
 
             query_symbols = ''
             if market == "KOSPI":
