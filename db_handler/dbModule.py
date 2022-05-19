@@ -1,5 +1,4 @@
-# file name : dbModule.py
-# pwd : /db_parser/dbModule.py
+#  file: db_parser/dbModule.py
 
 import pymysql
 
@@ -36,5 +35,3 @@ class Database():
 
     def rollback(self):
         self.db.rollback()
-
-

@@ -1,10 +1,13 @@
+#  file: api/models.py
+
+
 from tabnanny import verbose
 from turtle import update
 from django.db import models
 from django.urls import reverse
 from datetime import datetime
 
-class Stock_List(models.Model): 
+class StockList(models.Model): 
     """ 오늘의 주식 가격과 전종목 리스트
     pk = "ticker"
     columns = ["update_date", "name_english", "name_korea", "market", "price", "price_open", "prevclose", "price_high", "price_low", "volume", "update_dt", "create_dt"]
@@ -35,7 +38,7 @@ class Stock_List(models.Model):
         return str(self.ticker)
     
 
-class Stock_Information_History(models.Model): 
+class StockInformationHistory(models.Model): 
     """ 주식 실적 정보 히스토리
     pk = "id"
     columns = ["ticker", "update_date", "total_assets", "curruent_assets", "inventory", "quick_assets"
@@ -47,8 +50,8 @@ class Stock_Information_History(models.Model):
     note: 종목마다 재무정보 항목에 차이가 있어, json filed로 변경해달라는 요청 있음
     """
 
-    id = models.BigAutoField(help_text="id_stock_information_history", primary_key=True)
-    ticker = models.ForeignKey("Stock_List", related_name="stock_information_history", on_delete=models.CASCADE, db_column = "ticker")
+    id = models.BigAutoField(help_text="id_stockinformationhistory", primary_key=True)
+    ticker = models.ForeignKey("StockList", related_name="stockinformationhistory", on_delete=models.CASCADE, db_column = "ticker")
     update_date = models.DateField(verbose_name='date', help_text='업데이트 날짜', default=datetime.today)
 
     total_assets = models.FloatField(blank=True, null=True, help_text='자산총계')
@@ -85,16 +88,15 @@ class Stock_Information_History(models.Model):
     # def get_absolute_url(self):
     #     return reverse('stock_information_history-detail', args=(self.ticker))
 
-class Stock_Price_History(models.Model): 
+class StockPriceHistory(models.Model): 
     """ 종목의 상장 이후 부터 현재까지 주가 히스토리
     pk = "id"
     columns = ["ticker", "update_date", "price_open", "price_high", "price_low", "price_close"
     , "adj_close", "volume", "splits", "dividends", "update_dt", "create_dt"]
-    
     """
 
-    id = models.BigAutoField(help_text="id_stock_price_history", primary_key=True)
-    ticker = models.ForeignKey("Stock_List", related_name="stock_price_history", on_delete=models.CASCADE, db_column = "ticker")
+    id = models.BigAutoField(help_text="id_stockpricehistory", primary_key=True)
+    ticker = models.ForeignKey("StockList", related_name="stockpricehistory", on_delete=models.CASCADE, db_column = "ticker")
     update_date = models.DateField(help_text='날짜', default=datetime.today)
     
     price_open = models.FloatField(blank=True, null=True, help_text="시가")

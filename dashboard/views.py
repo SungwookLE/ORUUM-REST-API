@@ -1,7 +1,9 @@
+#  file: dashboard/views.py
+
 from django.shortcuts import render
 from rest_framework.decorators import api_view
-from .plotly_plot import *
-from db_parser.dbModule import Database
+from .plotly_set import *
+from db_handler.dbModule import Database
 
 
 # Create your views here.
@@ -10,10 +12,9 @@ def plotly_page(request):
     if request.method == 'GET':
         mysql_connection = Database().db
         #Plotly visualizations
-        target_plot = plotly_plot(mysql_connection)
+        target_plot = plot_plotly(mysql_connection)
         context = {'target_plot': target_plot}
         return render(request, "test1_dashplot.html", context=context)
-
 
 
 @api_view(['GET'])

@@ -1,3 +1,5 @@
+#  file: accounts/app.py
+
 from django.apps import AppConfig
 
 

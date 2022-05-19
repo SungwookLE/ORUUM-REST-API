@@ -1,17 +1,20 @@
+#  file: accounts/admin.py
+
 from django.contrib import admin
-from accounts.models import User_List, User_Interest, User_Portfolio
+from accounts.models import UserList, UserInterest, UserPortfolio
 from django.contrib.auth.admin import UserAdmin
 
-# Register your models here.
 
-@admin.register(User_List)
-class UserListAdmin(admin.ModelAdmin):
+@admin.register(UserList)
+class UserListAdmin(UserAdmin):
     pass
 
-@admin.register(User_Interest)
+
+@admin.register(UserInterest)
 class UserInterestAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['ticker']
 
-@admin.register(User_Portfolio)
+
+@admin.register(UserPortfolio)
 class UserPortfolioAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['ticker']
