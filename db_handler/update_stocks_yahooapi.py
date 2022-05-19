@@ -116,7 +116,17 @@ class UpdateStocksFromYahooapi:
                         pbar.update(1)
 
                     except StockList.DoesNotExist:
-                        StockList.objects.create(ticker=yFinance_iter["symbol"], update_date=datetime.date.today(), name_english=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "longName")[0:50], name_korea=UpdateStocksFromYahooapi.get_dict_value(fDataReader_iter[1], "Name")[0:50], market=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "fullExchangeName"), price=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPrice", 'float'), price_open=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketOpen", 'float'), price_high=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketDayHigh", 'float'), price_low=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketDayLow", 'float'), prevclose=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPreviousClose", 'float'), volume=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketVolume", 'float')
+                        StockList.objects.create(ticker=yFinance_iter["symbol"],
+                                                 update_date=datetime.date.today(), 
+                                                 name_english=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "longName")[0:50], 
+                                                 name_korea=UpdateStocksFromYahooapi.get_dict_value(fDataReader_iter[1], "Name")[0:50], 
+                                                 market=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "fullExchangeName"), 
+                                                 price=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPrice", 'float'), 
+                                                 price_open=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketOpen", 'float'), 
+                                                 price_high=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketDayHigh", 'float'), 
+                                                 price_low=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketDayLow", 'float'), 
+                                                 prevclose=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPreviousClose", 'float'), 
+                                                 volume=UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketVolume", 'float')
                                                  )
                         pbar.update(1)
 
