@@ -1,3 +1,5 @@
+#  file: backend/settings/develop.py
+
 from .base import *
 
 SECRET_KEY = 'django-insecure-n2hnn=ggfzp4i2(ed-$rlf_ovsdu@v9ie!3-%*g!=bs-lqhu0x'

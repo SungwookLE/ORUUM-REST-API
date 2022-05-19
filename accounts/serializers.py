@@ -7,7 +7,7 @@ from accounts.models import UserList, UserInterest, UserPortfolio
 class UserListSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserList
-        exclude = ['password']
+        fields = ['id', 'email', 'first_name', 'last_name', 'is_staff']
 
 
 class UserInterestSerializers(serializers.ModelSerializer):
