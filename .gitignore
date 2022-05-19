@@ -1,6 +1,5 @@
 *.pyc
-api/migrations/*
-accounts/migrations/*
+*/migrations/*.pyc
+*/migrations/*.py
 
-static/
 *.mwb

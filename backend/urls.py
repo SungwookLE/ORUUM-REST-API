@@ -1,5 +1,6 @@
-"""backend URL Configuration
+#  file: backend/urls.py
 
+"""backend URL Configuration
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
 Examples:
@@ -22,9 +23,10 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    path('accounts/', include('accounts.urls')),
 
     # oauth를 위한 url
-    path('accounts/', include('allauth.urls')),  
+    path('accounts/', include('allauth.urls')),
 
     # dashboard를 위한 url
     path('dashboard/', include('dashboard.urls')),

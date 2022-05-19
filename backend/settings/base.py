@@ -1,8 +1,11 @@
+#  file: backend/settings/base.py
+
 from pathlib import Path
 import os
 from django.urls import reverse_lazy
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))))
 
 # Application definition
 INSTALLED_APPS = [
@@ -19,7 +22,7 @@ INSTALLED_APPS = [
 
     # REST Framework
     'rest_framework',
-    
+
     # ========================================
     # CORS: Crosss-Origin Resource Sharing)
     # 웹 페이지 상의 제한된 리소스를 최초 자원이 서비스된 도메인(REST API) 밖의 다른 도메인(FRONT)으로부터 요청할 수 있게 허용하는 구조
@@ -44,10 +47,10 @@ INSTALLED_APPS = [
 
 # ========================================
 # 카카오 소셜 로그인을 위한 세팅 환경 변수 선언
-SITE_ID=1
-LOGIN_REDIRECT_URL = '/' # 로그인 후 리다이렉트 될 경로
+SITE_ID = 1
+LOGIN_REDIRECT_URL = '/'  # 로그인 후 리다이렉트 될 경로
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
-ACCOUNT_LOGOUT_ON_GET = True # 로그아웃 버튼 클릭 시 자동 로그아웃
+ACCOUNT_LOGOUT_ON_GET = True  # 로그아웃 버튼 클릭 시 자동 로그아웃
 SOCIALACCOUNT_AUTO_SIGNUP = False
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 # ========================================
@@ -55,7 +58,7 @@ ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # CORS
+    'corsheaders.middleware.CorsMiddleware',  # CORS
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -78,7 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                
+
                 # `allauth` needs this from django
                 'django.template.context_processors.request',
             ],
@@ -130,10 +133,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # ========================================
 # 장고의 default 유저 모델인 abstractUser를 상속시켜 만든 커스텀 모델을 default 모델로 사용을 원할 경우, 모델을 지정해주어야 함
-AUTH_USER_MODEL = 'accounts.User_List' 
+AUTH_USER_MODEL = 'accounts.UserList'
 # ========================================
 
 # ========================================
 # plotly dash
-X_FRAME_OPTIONS = 'SAMEORIGIN' 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 # ========================================

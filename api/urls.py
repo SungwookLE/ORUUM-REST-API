@@ -1,34 +1,32 @@
+#  file: api/urls.py
+
 from django.urls import path, include, register_converter
 from rest_framework import routers
 from api.converters import DateConverter
 
-from api.views import Stock_List_ListAPIView, Stock_List_RetrieveAPIView
-from api.views import Stock_Information_History_ListAPIView, Stock_Information_History_RetrieveAPIView, Stock_Information_Spark_ListAPIView 
-from api.views import Stock_Price_History_ListAPIView, Stock_Price_History_RetrieveAPIView, Stock_Price_Spark_ListAPIView 
-from api.views import User_List_ListAPIView, User_List_RetrieveAPIView, User_Interest_ListAPIView, User_Portfolio_ListAPIView
-
-#from api.views import my_test_url, my_test2_url, my_test3_url, my_test_spark
+from api.views import StockListListAPIView, StockListRetrieveAPIView
+from api.views import StockInformationHistoryListAPIView, StockInformationHistoryRetrieveAPIView, StockInformationSparkListAPIView
+from api.views import StockPriceHistoryListAPIView, StockPriceHistoryRetrieveAPIView, StockPriceSparkListAPIView
 
 app_name = 'api'
 register_converter(DateConverter, 'date')
 
 urlpatterns = [
-    path('stocklist/', Stock_List_ListAPIView.as_view(), name='stock_list-list'),
-    path('stocklist/<str:ticker>/', Stock_List_RetrieveAPIView.as_view(), name='stock_list-detail'),
+    path('stocklist/', StockListListAPIView.as_view(), name='stocklist-list'),
+    path('stocklist/<str:ticker>/',
+         StockListRetrieveAPIView.as_view(), name='stocklist-detail'),
 
-    path('stockinformation_history/<str:ticker>/', Stock_Information_History_ListAPIView.as_view(), name='stock_information_history-list'),
-    path('stockinformation_history/<str:ticker>/<date:update_date>/', Stock_Information_History_RetrieveAPIView.as_view(), name='stock_information_history-detail'),
-    path('stockinformation_spark/<str:ticker>/<date:s_date>-<date:e_date>/', Stock_Information_Spark_ListAPIView.as_view(), name='stock_information_spark-list'),
-    
-    path('stockprice_history/<str:ticker>/', Stock_Price_History_ListAPIView.as_view(), name='stock_price_history-list'),
-    path('stockprice_history/<str:ticker>/<date:update_date>/', Stock_Price_History_RetrieveAPIView.as_view(), name='stock_price_history-detail'),
-    path('stockprice_spark/<str:ticker>/<date:s_date>-<date:e_date>/', Stock_Price_Spark_ListAPIView.as_view(), name='stock_price_spark-list'),
-    
-    path('userlist/', User_List_ListAPIView.as_view(), name='user_list-list'),
-    path('userlist/<int:id_user>/', User_List_RetrieveAPIView.as_view(), name='user_list-detail'),
+    path('stockinformationhistory/<str:ticker>/',
+         StockInformationHistoryListAPIView.as_view(), name='stockinformationhistory-list'),
+    path('stockinformationhistory/<str:ticker>/<date:update_date>/',
+         StockInformationHistoryRetrieveAPIView.as_view(), name='stockinformationhistory-detail'),
+    path('stockinformationspark/<str:ticker>/<date:s_date>-<date:e_date>/',
+         StockInformationSparkListAPIView.as_view(), name='stockinformationspark-list'),
 
-    path('userinterest/', User_Interest_ListAPIView.as_view(), name='user_interest-list'),
-    path('userportfolio/', User_Portfolio_ListAPIView.as_view(), name='user_portfolio-list'),
+    path('stockpricehistory/<str:ticker>/',
+         StockPriceHistoryListAPIView.as_view(), name='stockpricehistory-list'),
+    path('stockpricehistory/<str:ticker>/<date:update_date>/',
+         StockPriceHistoryRetrieveAPIView.as_view(), name='stockpricehistory-detail'),
+    path('stockpricespark/<str:ticker>/<date:s_date>-<date:e_date>/',
+         StockPriceSparkListAPIView.as_view(), name='stockpricespark-list'),
 ]
-
-

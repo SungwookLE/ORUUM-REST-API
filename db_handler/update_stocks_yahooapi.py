@@ -1,25 +1,30 @@
-# file name : parser_stock_list.py
-# pwd : /db_parser/parser_stock_list.py
+#  file: db_handler/update_stocks_yahooapi.py
 
 import requests  # for request API request
-# load stock list with symbol, name arond the market
-import FinanceDataReader as fdr
+
 from tqdm import tqdm
-import dbModule  # db_parser/dbModule.py, For mysql database handling using pymysql package with sql language
-import datetime  # time handling
-import re  # regex
+import dbModule
+import datetime
+import re
 import pymysql
 import json
 
+# load stock list with symbol, name arond the market
+import FinanceDataReader as fdr
 
-class parser_stock_list:
+
+class UpdateStocksFromYahooapi:
     def __init__(self):
         self.database = dbModule.Database()
         self.base_url = 'https://yfapi.net'
-        # self.yahoofinance_api_key = 'B4MH0ErsUBavxjrK6p9bc3sKimfki0my2rvREKtd'  # @google 계정 api 키
-        self.yahoofinance_api_key = 'Y6hHjQsoax7rghXMy9EDTwVIXRDhpJT7b5eHCvfg' #@naver 계정 api 키
-        # self.yahoofinance_api_key = 'e0mzom5Zj566VYXBngUMT2s91vsViidp8SXEuoJG' #@daum
+        self.yahoofinance_api_key = 'SWWKCLlCepeCqIA5qcICawFpEYJQeYz4YPMLmCk3'
+
         '''
+        yahoo api test key(for debug):
+        self.yahoofinance_api_key = 'B4MH0ErsUBavxjrK6p9bc3sKimfki0my2rvREKtd'  # @google 계정 api 키
+        self.yahoofinance_api_key = 'SWWKCLlCepeCqIA5qcICawFpEYJQeYz4YPMLmCk3' #@naver 계정 api 키
+        self.yahoofinance_api_key = 'e0mzom5Zj566VYXBngUMT2s91vsViidp8SXEuoJG' #@daum
+
         # KRX stock symbol list
         stocks = fdr.StockListing('KRX') # 코스피, 코스닥, 코넥스 전체
         stocks = fdr.StockListing('KOSPI') # 코스피
@@ -32,13 +37,11 @@ class parser_stock_list:
         stocks = fdr.StockListing('AMEX')   # 아멕스
         '''
 
-    def symbol_list(self):
+    def get_symbol_list(self):
         return self.stocks_list["Symbol"]
 
-
-
     def get_dict_value(df, key, opt='str'):
-        if opt!='str':
+        if opt != 'str':
             temp = (lambda x: 0 if x is None else x)(df.get(key))
         else:
             temp = (lambda x: "" if x is None else x)(df.get(key))
@@ -83,20 +86,25 @@ class parser_stock_list:
                         pbar.update(1)
                         sql = """
                         INSERT INTO
-                        `api_stock_list` (`ticker`, `update_date`, `name_english`, `market`, `price`, `price_open`, `price_high`, `price_low`, `name_korea`, `prevclose`, `volume`, `update_dt`, `create_dt`) 
+                        `api_stocklist` (`ticker`, `update_date`, `name_english`, `market`, `price`, `price_open`, `price_high`, `price_low`, `name_korea`, `prevclose`, `volume`, `update_dt`, `create_dt`) 
                         VALUES ('%s', '%s', '%s', '%s', '%f', '%f', '%f', '%f', '%s', '%f','%f', '%s', '%s');
-                        """ % (yFinance_iter["symbol"], datetime.date.today(), parser_stock_list.get_dict_value(yFinance_iter, "longName")[0:50],
-                               parser_stock_list.get_dict_value(yFinance_iter,"fullExchangeName"), parser_stock_list.get_dict_value(yFinance_iter,"regularMarketPrice",'float'), 
-                               parser_stock_list.get_dict_value(yFinance_iter,"regularMarketOpen",'float'), parser_stock_list.get_dict_value(yFinance_iter,"regularMarketDayHigh",'float'),
-                               parser_stock_list.get_dict_value(yFinance_iter,"regularMarketDayLow",'float'), parser_stock_list.get_dict_value(fDataReader_iter[1],"Name")[0:50], 
-                               parser_stock_list.get_dict_value(yFinance_iter,"regularMarketPreviousClose",'float'), parser_stock_list.get_dict_value(yFinance_iter,"regularMarketVolume",'float'),
+                        """ % (yFinance_iter["symbol"], datetime.date.today(), UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "longName")[0:50],
+                               UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "fullExchangeName"), UpdateStocksFromYahooapi.get_dict_value(
+                                   yFinance_iter, "regularMarketPrice", 'float'),
+                               UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketOpen", 'float'), UpdateStocksFromYahooapi.get_dict_value(
+                                   yFinance_iter, "regularMarketDayHigh", 'float'),
+                               UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketDayLow", 'float'), UpdateStocksFromYahooapi.get_dict_value(
+                                   fDataReader_iter[1], "Name")[0:50],
+                               UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPreviousClose", 'float'), UpdateStocksFromYahooapi.get_dict_value(
+                                   yFinance_iter, "regularMarketVolume", 'float'),
                                datetime.datetime.now(), datetime.datetime.now())
 
                         self.database.execute(sql)
                         self.database.commit()
 
                     except KeyError as e:
-                        print("response key:{} is not existed.\n continued..".format(e))
+                        print(
+                            "response key:{} is not existed.\n continued..".format(e))
 
                     except pymysql.err.IntegrityError as e:
                         #print(e.args[0])
@@ -104,7 +112,7 @@ class parser_stock_list:
                         if (e.args[0] == 1062):
                             pbar.update(1)
                             sql = """
-                            SELECT `update_dt` FROM `api_stock_list` WHERE `ticker`='%s' 
+                            SELECT `update_dt` FROM `api_stocklist` WHERE `ticker`='%s' 
                             """ % yFinance_iter["symbol"]
                             rows = self.database.executeAll(sql)
                             timedelta = datetime.datetime.now() - \
@@ -115,16 +123,21 @@ class parser_stock_list:
                                 pass
                             else:
                                 sql = """
-                                UPDATE `api_stock_list` SET `update_date` = '%s', `price`= '%f', 
+                                UPDATE `api_stocklist` SET `update_date` = '%s', `price`= '%f', 
                                     `price_open`= '%f', `price_high`= '%f', `price_low`= '%f', 
                                     `prevclose`= '%f', `volume`= '%f', `update_dt`= '%s'
                                 WHERE `ticker`='%s'
-                                """ % (datetime.date.today(), parser_stock_list.get_dict_value(yFinance_iter,"regularMarketPrice",'float'),
-                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketOpen",'float'),
-                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketDayHigh",'float'),
-                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketDayLow",'float'),
-                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketPreviousClose",'float'),
-                                       parser_stock_list.get_dict_value(yFinance_iter,"regularMarketVolume",'float'),
+                                """ % (datetime.date.today(), UpdateStocksFromYahooapi.get_dict_value(yFinance_iter, "regularMarketPrice", 'float'),
+                                       UpdateStocksFromYahooapi.get_dict_value(
+                                           yFinance_iter, "regularMarketOpen", 'float'),
+                                       UpdateStocksFromYahooapi.get_dict_value(
+                                           yFinance_iter, "regularMarketDayHigh", 'float'),
+                                       UpdateStocksFromYahooapi.get_dict_value(
+                                           yFinance_iter, "regularMarketDayLow", 'float'),
+                                       UpdateStocksFromYahooapi.get_dict_value(
+                                           yFinance_iter, "regularMarketPreviousClose", 'float'),
+                                       UpdateStocksFromYahooapi.get_dict_value(
+                                           yFinance_iter, "regularMarketVolume", 'float'),
                                        datetime.datetime.now(), yFinance_iter["symbol"])
 
                                 self.database.execute(sql)
@@ -139,5 +152,5 @@ class parser_stock_list:
 
 
 if __name__ == "__main__":
-    parser = parser_stock_list()
-    parser.update_stockquote_from_yahooapi("NASDAQ")
+    updater = UpdateStocksFromYahooapi()
+    updater.update_stockquote_from_yahooapi("NASDAQ")
