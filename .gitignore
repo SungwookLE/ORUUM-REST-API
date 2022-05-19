@@ -1,0 +1,9 @@
+# 파이썬 빌드파일
+*.pyc
+*/migrations/*.pyc
+
+# 장고 마이그레이션 관리파일
+*/migrations/*.py
+
+# 프로젝트 외 출력물
+*.mwb
