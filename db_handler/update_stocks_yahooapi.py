@@ -1,6 +1,5 @@
 #  file: db_handler/update_stocks_yahooapi.py
 
-from turtle import up
 import FinanceDataReader as fdr
 import os
 import sys
@@ -197,5 +196,5 @@ class UpdateStocksFromYahooapi:
 
 if __name__ == "__main__":
     updater = UpdateStocksFromYahooapi()
-    #updater.update_stockquote_from_yahooapi("NASDAQ")
+    updater.update_stockquote_from_yahooapi("NASDAQ")
     updater.update_stockpricehistory_from_yahooapi("NASDAQ", history_range="1wk")
