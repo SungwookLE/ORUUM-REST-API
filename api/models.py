@@ -80,7 +80,7 @@ class StockInformationHistory(models.Model):
     create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
 
     class Meta:
-        ordering = ['-update_date', 'ticker']
+        ordering = ['ticker','-update_date']
 
     def __str__(self): 
         return str(self.id)
@@ -89,7 +89,7 @@ class StockInformationHistory(models.Model):
     #     return reverse('stock_information_history-detail', args=(self.ticker))
 
 class StockPriceHistory(models.Model): 
-    """ 종목의 상장 이후 부터 현재까지 주가 히스토리
+    """ 종목의 상장 이후 부터 현재까지 주가 히스토리, 히스토리 간격(interval): 1day
     pk = "id"
     columns = ["ticker", "update_date", "price_open", "price_high", "price_low", "price_close"
     , "adj_close", "volume", "splits", "dividends", "update_dt", "create_dt"]
@@ -100,11 +100,10 @@ class StockPriceHistory(models.Model):
     update_date = models.DateField(help_text='날짜', default=datetime.today)
     
     price_open = models.FloatField(blank=True, null=True, help_text="시가")
-    price_high = models.FloatField(default=0, help_text="고가")
-    price_low = models.FloatField(default=0, help_text="저가")
-    price_close = models.FloatField(blank=True, null=True ,help_text="종가")
-    adj_close = models.FloatField(blank=True, null=True, help_text="조정 종가")
-    volume = models.FloatField(default=0, help_text="거래량")
+    price_high = models.FloatField(blank=True, null=True, help_text="고가")
+    price_low = models.FloatField(blank=True, null=True, help_text="저가")
+    price_close = models.FloatField(help_text="종가")
+    volume = models.FloatField(blank=True, null=True, help_text="거래량")
 
     splits = models.FloatField(blank=True, null=True, help_text='주식분할 내역')
     dividends = models.FloatField(blank=True, null=True, help_text='배당 내역')
@@ -113,9 +112,9 @@ class StockPriceHistory(models.Model):
     create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
 
     class Meta:
-        ordering = ['-update_date', 'ticker']
+        ordering = ['ticker', '-update_date' ]
     
     def __str__(self): 
-        return str(self.id)
+        return str(self.ticker) + "@" + str(self.update_date)
 
     
