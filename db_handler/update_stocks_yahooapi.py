@@ -149,7 +149,7 @@ class UpdateStocksFromYahooapi:
         progress_bar.set_description("stockpricehistory from yFinance API")
 
         while (self.stockslisting_dict.empty is not True):
-            maximum_number_of_stocks_loaded_at_once = 50
+            maximum_number_of_stocks_loaded_at_once = 20
             stockslisting_dict_slice = self.stockslisting_dict.iloc[0:maximum_number_of_stocks_loaded_at_once]
 
             query_symbols = ''
@@ -169,6 +169,7 @@ class UpdateStocksFromYahooapi:
 
             self.stockslisting_dict.drop(stockslisting_dict_slice.index, inplace=True)
             self.result_json_from_yahooapi = response_from_yahooapi.json()
+            print(self.result_json_from_yahooapi)
 
             for ticker in stockslisting_dict_slice["Symbol"]:
                 try:

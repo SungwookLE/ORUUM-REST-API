@@ -7,3 +7,6 @@
 
 # 프로젝트 외 출력물
 *.mwb
+
+# configuration file
+config.py

@@ -1,13 +1,19 @@
 #  file: db_parser/dbModule.py
+import os
+import sys
+sys.path.append(os.getcwd())
 
 import pymysql
+from config import db_config
+
+
 
 
 class Database():
     def __init__(self):
         self.db = pymysql.connect(host='localhost',
                                   user='root',
-                                  password='3102',
+                                  password=db_config["password"],
                                   db='oruum_db',
                                   charset='utf8')
         self.cursor = self.db.cursor(pymysql.cursors.DictCursor)
