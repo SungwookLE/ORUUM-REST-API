@@ -1,8 +1,6 @@
 #  file: api/models.py
 
 
-from tabnanny import verbose
-from turtle import update
 from django.db import models
 from django.urls import reverse
 from datetime import datetime
