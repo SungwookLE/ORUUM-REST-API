@@ -1,5 +1,4 @@
 #  file: api/admin.py
-from csv import list_dialects
 from django.contrib import admin
 
 from api.models import StockList, StockInformationHistory, StockPriceHistory

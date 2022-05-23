@@ -1,17 +1,18 @@
 #  file: backend/settings/develop.py
 
 from .base import *
+from config import db_config, django_config
 
-SECRET_KEY = 'django-insecure-n2hnn=ggfzp4i2(ed-$rlf_ovsdu@v9ie!3-%*g!=bs-lqhu0x'
+SECRET_KEY = django_config["SECRET_KEY"]
 DEBUG = True
-ALLOWED_HOSTS = [] # blank means 'localhost', '127.0.0.1'
+ALLOWED_HOSTS = ['*'] # blank means 'localhost', '127.0.0.1'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'oruum_db',
         'USER': 'root',
-        'PASSWORD': '3102',
+        'PASSWORD': db_config["password"],
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
