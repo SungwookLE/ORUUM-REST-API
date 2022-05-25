@@ -6,18 +6,61 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ORUUM</title>
+    <script type="text/javascript">
+        function getClock() {
+            var date = new Date();
+
+            var hours = String(date.getHours()).padStart(2, "0");
+            var min = String(date.getMinutes()).padStart(2, "0");
+            var sec = String(date.getSeconds()).padStart(2, "0");
+
+            var year = String(date.getFullYear()).substr(2);
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+
+            var timeBoard = document.getElementById("Now"); // 값이 입력될 공간
+            timeBoard.innerHTML = `${year}. ${month}. ${day}. ${hours} : ${min} : ${sec}`;
+            setInterval(getClock, 1000);
+        }
+    </script>
 </head>
 
-<body>
+<body onload="getClock()">
+    <div class="digital_clock" id="Now"></div>
     <p>
-        <center>ORUUM-REST-API</center>
+        <center class="title">ORUUM-REST-API</center>
 
         {% load socialaccount %}
-        <a href="{% provider_login_url 'kakao' method='oauth2'%}">
-            카카오톡 회원가입
-        </a>
+        <a href="{% provider_login_url 'kakao' method='oauth2'%}"><button>카카오톡 회원가입</button></a>
 
     </p>
 </body>
+<style>
+    body {
+        background: whitesmoke;
+    }
+
+    .digital_clock {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        color: burlywood;
+        font-size: 60px;
+        font-family: 'Courier New', Courier, monospace
+    }
+
+    .title {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        color: burlywood;
+        font-size: 60px;
+        font-family: 'Courier New', Courier, monospace
+    }
+
+
+</style>
 
 </html>

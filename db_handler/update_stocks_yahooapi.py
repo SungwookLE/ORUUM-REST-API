@@ -151,7 +151,6 @@ class UpdateStocksFromYahooapi:
         url = self.base_url + "/v8/finance/spark"
 
         stockslisting_dict = self.stockslisting_dict.copy()
-        print(stockslisting_dict)
         progress_bar = tqdm(stockslisting_dict)
         progress_bar.set_description("stockpricehistory from yFinance API")
 
