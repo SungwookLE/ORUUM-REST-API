@@ -12,9 +12,9 @@ from config import db_config
 class Database():
     def __init__(self):
         self.db = pymysql.connect(host='localhost',
-                                  user='root',
+                                  user=db_config["user"],
                                   password=db_config["password"],
-                                  db='oruum_db',
+                                  db=db_config["schema"],
                                   charset='utf8')
         self.cursor = self.db.cursor(pymysql.cursors.DictCursor)
 

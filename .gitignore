@@ -10,3 +10,6 @@
 
 # configuration file
 config.py
+
+# AWS 클라우드 pem
+cloud/
