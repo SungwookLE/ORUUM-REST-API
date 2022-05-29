@@ -10,8 +10,8 @@ ALLOWED_HOSTS = ['*'] # blank means 'localhost', '127.0.0.1'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'oruum_db',
-        'USER': 'root',
+        'NAME':  db_config["schema"],
+        'USER': db_config["user"],
         'PASSWORD': db_config["password"],
         'HOST': '127.0.0.1',
         'PORT': '3306',

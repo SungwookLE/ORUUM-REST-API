@@ -1,21 +1,26 @@
 #  file: dashboard/views.py
 
 from django.shortcuts import render
-from rest_framework.decorators import api_view
-from .plotly_set import plot_plotly
+from dashboard.plotly_functionset import plotly_stock_as_line, plotly_stocks_all_as_bar
 
 
 # Create your views here.
-@api_view(['GET'])
-def plotly_page(request, ticker):
+def plotly_stock_as_line_view(request, ticker):
     if request.method == 'GET':
         #Plotly visualizations
-        target_plot = plot_plotly(ticker)
-        context = {'target_plot': target_plot, "ticker": ticker}
-        return render(request, "dashboard/static_dash_template.html", context=context)
+        target_plot = plotly_stock_as_line(ticker)
+        context = {'target_plot': target_plot}
+        return render(request, "dashboard/plotly_stock.html", context=context)
 
 
-@api_view(['GET'])
-def dash_page(request):
+def plotly_stocks_all_as_bar_view(request, market):
     if request.method == 'GET':
-        return render(request, "dashboard/interactive_dash_template.html")
+        #Plotly visualizations
+        target_plot = plotly_stocks_all_as_bar(market)
+        context = {'target_plot': target_plot}
+        return render(request, "dashboard/plotly_stock.html", context=context)
+
+
+def dash_stock_as_line_view(request):
+    if request.method == 'GET':
+        return render(request, "dashboard/dash_stock.html")

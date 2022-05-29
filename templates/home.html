@@ -6,6 +6,69 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ORUUM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+
+</head>
+
+<body onload="getClock()">
+    {% load socialaccount %}
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">ORUUM</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Account
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="accounts/userlist/">list</a></li>
+                            <li><a class="dropdown-item" href="accounts/userinterest/">interest</a></li>
+                            <li><a class="dropdown-item" href="accounts/userportfolio/">portfolio</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Stock
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="api/stocklist/">list</a></li>
+                            <li><a class="dropdown-item" href="api/stockpricehistory/">price</a></li>
+                            <li><a class="dropdown-item" href="api/stockinformationhistory/">information</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Dashboard
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="dashboard/line/">line</a></li>
+                            <li><a class="dropdown-item" href="dashboard/bar/">bar</a></li>
+                            <li><a class="dropdown-item" href="dashboard/dash/">dash</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <a href="{% provider_login_url 'kakao' method='oauth2'%}"><button class="btn btn-outline-success">카카오톡
+                        회원가입</button></a>
+            </div>
+        </div>
+    </nav>
+
+      <p class="text-center fs-2 fw-bold font-monospace">ORUUM-REST-API</p>
+      <p class="text-center fs-2 font-monospace" id="Now"></p>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+    crossorigin="anonymous"></script>
     <script type="text/javascript">
         function getClock() {
             var date = new Date();
@@ -23,44 +86,5 @@
             setInterval(getClock, 1000);
         }
     </script>
-</head>
-
-<body onload="getClock()">
-    <div class="digital_clock" id="Now"></div>
-    <p>
-        <center class="title">ORUUM-REST-API</center>
-
-        {% load socialaccount %}
-        <a href="{% provider_login_url 'kakao' method='oauth2'%}"><button>카카오톡 회원가입</button></a>
-
-    </p>
 </body>
-<style>
-    body {
-        background: whitesmoke;
-    }
-
-    .digital_clock {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translateX(-50%) translateY(-50%);
-        color: burlywood;
-        font-size: 60px;
-        font-family: 'Courier New', Courier, monospace
-    }
-
-    .title {
-        position: absolute;
-        top: 40%;
-        left: 50%;
-        transform: translateX(-50%) translateY(-50%);
-        color: burlywood;
-        font-size: 60px;
-        font-family: 'Courier New', Courier, monospace
-    }
-
-
-</style>
-
 </html>
