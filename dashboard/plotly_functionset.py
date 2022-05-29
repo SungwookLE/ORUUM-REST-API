@@ -11,7 +11,7 @@ from api.models import StockPriceHistory, StockList
 import plotly.express as px
 
 
-def plotly_stock_as_line(ticker):
+def get_stockpricehistory_plotly_object_as_line(ticker):
     """
     This function plots plotly plot
     """
@@ -36,7 +36,7 @@ def plotly_stock_as_line(ticker):
     return fig_plotly_object
 
 
-def plotly_stocks_all_as_bar(market):
+def get_stocklist_plotly_object_as_bar(market):
     """
     This function plots plotly plot
     """
@@ -49,7 +49,7 @@ def plotly_stocks_all_as_bar(market):
     fig = px.bar(result_dict, x='ticker', y='price')
 
     #Update layout for graph object Figure
-    fig.update_layout(title=market,
+    fig.update_layout(title=market + ": " + result_dict['update_date'][0].strftime("%Y.%m.%d"),
                       xaxis_title='ticker',
                       yaxis_title='price')
 
@@ -59,6 +59,8 @@ def plotly_stocks_all_as_bar(market):
     return fig_plotly_object
 
 
+##########################################################################
+# for stateless-dash-app
 ##########################################################################
 #GET data from database
 ticker_from_stocklist = StockPriceHistory.objects.values_list('ticker')
@@ -87,21 +89,9 @@ app.layout = html.Div([
 
 @app.callback(Output('history_plot', 'figure'),  # id of html component
               [Input('ticker_options', 'value')])  # id of html component
-def dash_stock(ticker):
+def callback_stockpricehistory_as_line(ticker):
     """
-    This function returns figure object according to value input
-    Input: Value specified
-    Output: Figure object
-    """
-    #Get city plot with input value
-    fig = dash_stock_as_line(ticker)
-    return fig
-
-
-def dash_stock_as_line(ticker):
-    """
-    This function creates dash app for plotting variable stats by city selected
-    Input: Mysql connection and city specified
+    This function creates dash app for plotting variable stats
     Output: Figure object
     """
     #Get table from SQL result
@@ -118,5 +108,4 @@ def dash_stock_as_line(ticker):
     fig.update_layout(title=ticker,
                       xaxis_title='Date',
                       yaxis_title='Close')
-
     return fig
