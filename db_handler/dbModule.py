@@ -2,19 +2,20 @@
 import os
 import sys
 sys.path.append(os.getcwd())
-
+from backend.settings.base import BASE_DIR
 import pymysql
-from config import db_config
+import json
 
-
-
+config_file = os.path.join(BASE_DIR, 'config.json') 
+with open(config_file) as f:
+    secrets = json.loads(f.read())
 
 class Database():
     def __init__(self):
         self.db = pymysql.connect(host='localhost',
-                                  user=db_config["user"],
-                                  password=db_config["password"],
-                                  db=db_config["schema"],
+                                  user=secrets["db_config"]["user"],
+                                  password=secrets["db_config"]["password"],
+                                  db=secrets["db_config"]["schema"],
                                   charset='utf8')
         self.cursor = self.db.cursor(pymysql.cursors.DictCursor)
 

@@ -9,7 +9,7 @@
 *.mwb
 
 # configuration file
-config.py
+config.json
 
 # AWS 클라우드 pem
 cloud/
