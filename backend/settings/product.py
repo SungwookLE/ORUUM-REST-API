@@ -4,13 +4,13 @@ from .base import *
 import os
 import json
 
-config_file = os.path.join(BASE_DIR, 'config.json') 
+config_file = os.path.join(BASE_DIR, 'config.json')
 with open(config_file) as f:
     secrets = json.loads(f.read())
 
 SECRET_KEY = secrets["django_config"]["SECRET_KEY"]
 DEBUG = False
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['3.38.30.153']
 
 DATABASES = {
     'default': {
