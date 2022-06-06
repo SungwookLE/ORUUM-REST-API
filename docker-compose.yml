@@ -1,0 +1,13 @@
+version: '3'
+services:
+ oruum-db:
+  image: joker1251/oruum-backend:2206
+  environment:
+   - MYSQL_ROOT_PASSWORD=test
+  ports:
+   - "3306:3306"
+   - "5000:5000"
+  command: tail -f /dev/null
+  stdin_open: true
+  tty: true
+  entrypoint: /bin/bash
