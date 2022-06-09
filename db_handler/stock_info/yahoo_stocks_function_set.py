@@ -1,5 +1,4 @@
 
-import yahoo_fin.stock_info as yf
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup

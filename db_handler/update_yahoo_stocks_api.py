@@ -211,5 +211,5 @@ class UpdateStocksFromYahooapi:
 
 if __name__ == "__main__":
     updater = UpdateStocksFromYahooapi("NASDAQ")
-    #updater.update_stockquote_from_yahooapi()
+    updater.update_stockquote_from_yahooapi()
     updater.update_stockpricehistory_from_yahooapi(history_range="max")
