@@ -20,6 +20,11 @@ from api.models import StockList, StockInformationHistory, StockPriceHistory
 
 
 class UpdateStocksFromYahooapi:
+    """
+    - 해당 클래스는 yahoo api https://yfapi.net 를 호출하여 데이터를 가져오고 db에 업데이트하는 코드
+     - 장점: api를 이용하는 것이므로 리턴 값이 정형화 되어 있어, 핸들링하기 편함
+     - 단점: API를 이용하기에 무료계정에서는, 호출 제한이 존재
+    """
     def __init__(self, market):
         self.database = dbModule.Database() # it is needed for handling database using raw SQL
 
