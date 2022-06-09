@@ -4,7 +4,7 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-
+yf.get_data
 class YahooStockFunctionSet:
 
     def get_quote_data(ticker, headers={'User-Agent': 'Mozilla/5.0'}):
@@ -17,7 +17,7 @@ class YahooStockFunctionSet:
         info = json_result["quoteResponse"]["result"]
         return info
 
-    def build_url(ticker, start_date = None, end_date = None, interval = "1d"):
+    def build_url(ticker, start_date, end_date, range, interval):
         base_url = "https://query1.finance.yahoo.com/v8/finance/chart/"
         if end_date is None:  
             end_seconds = int(pd.Timestamp("now").timestamp()) #1654527693
@@ -31,28 +31,25 @@ class YahooStockFunctionSet:
         site = base_url + ticker
         
         params = {"startDate": start_seconds, "endDate": end_seconds,
-                "interval": interval}
+                "range": range, "interval": interval}
         
         return site, params
 
-    def get_history_data(ticker, start_date = None, end_date = None, index_as_date = True,
-             interval = "1d", headers = {'User-Agent': 'Mozilla/5.0'}):
-        '''Downloads historical stock price data into a pandas data frame.  Interval
-        must be "1d", "1wk", "1mo", or "1m" for daily, weekly, monthly, or minute data.
-        Intraday minute data is limited to 7 days.
-        
+    def get_history_data(ticker, start_date = None, end_date = None, range = "max", interval="1d", index_as_date = True,
+              headers = {'User-Agent': 'Mozilla/5.0'}):
+
+        '''Downloads historical stock price data into a pandas data frame
         @param: ticker
         @param: start_date = None
         @param: end_date = None
         @param: index_as_date = True
-        @param: interval = "1d"
+        @param: range = max, 1d, 5d, 1mo, 3mo, 6mo, 17, ytd
+        @param: interval = "1d", "1wk", "1mo", "1m"
+
         '''
         
-        if interval not in ("1d", "1wk", "1mo", "1m"):
-            raise AssertionError("interval must be of of '1d', '1wk', '1mo', or '1m'")
-        
         # build and connect to URL
-        site, params = YahooStockFunctionSet.build_url(ticker, start_date, end_date, interval)
+        site, params = YahooStockFunctionSet.build_url(ticker=ticker, start_date=start_date, end_date=end_date, range=range, interval=interval)
         resp = requests.get(site, params = params, headers = headers)
 
         if not resp.ok:
@@ -62,28 +59,20 @@ class YahooStockFunctionSet:
             else:
                 print (f"{ticker}", resp.json())
                 return None
-
+        
         # get JSON response
         data = resp.json()
         # get open / high / low / close data
         frame = pd.DataFrame(data["chart"]["result"]
                              [0]["indicators"]["quote"][0])
-        
+
         try:
             # get the date info
             temp_time = data["chart"]["result"][0]["timestamp"]
-        
-            if interval != "1m":
-                # if add in adjclose: frame["adjclose"] = data["chart"]["result"][0]["indicators"]["adjclose"][0]["adjclose"]
-                frame.index = pd.to_datetime(temp_time, unit="s")
-                frame.index = frame.index.map(lambda dt: dt.floor("d"))
-                frame = frame[["open", "high", "low",
+            frame.index = pd.to_datetime(temp_time, unit="s")
+            frame.index = frame.index.map(lambda dt: dt.floor("d"))
+            frame = frame[["open", "high", "low",
                             "close", "volume"]]
-
-            else:
-                frame.index = pd.to_datetime(temp_time, unit="s")
-                frame = frame[["open", "high", "low", "close", "volume"]]
-
             frame['ticker'] = ticker.upper()
 
             if not index_as_date:

@@ -18,6 +18,7 @@ class StockList(models.Model):
     name_korea = models.CharField(max_length=50, blank=True, null=True, help_text='주식명(한국어)')
 
     market = models.CharField(max_length=20, default='', help_text='상장사')
+    currency = models.CharField(max_length=10, blank=True, null=True, help_text='통화 단위')
 
     price = models.FloatField(default=0, help_text='주가')
     price_open = models.FloatField(default=0, help_text='시가')
