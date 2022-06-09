@@ -11,6 +11,11 @@ with open(config_file) as f:
     secrets = json.loads(f.read())
 
 class Database():
+    """
+    raw SQL 문법으로 데이터베이스에 CRUD 수행하기 위해 해당 클래스 작성하였어요.
+    그러나, 왠만해선 django ORM을 사용하여 database 핸들링해주세요.
+    """
+
     def __init__(self):
         self.db = pymysql.connect(host='localhost',
                                   user=secrets["db_config"]["user"],

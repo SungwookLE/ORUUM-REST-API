@@ -4,7 +4,6 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-yf.get_data
 class YahooStockFunctionSet:
 
     def get_quote_data(ticker, headers={'User-Agent': 'Mozilla/5.0'}):

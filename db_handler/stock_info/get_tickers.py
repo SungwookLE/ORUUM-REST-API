@@ -1,7 +1,5 @@
 import pandas as pd
 import requests
-#from bs4 import BeautifulSoup
-#import yahoo_fin.stock_info as yf
 
 class GetTicker:
 
