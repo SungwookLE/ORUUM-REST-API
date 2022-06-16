@@ -20,6 +20,11 @@ from api.models import StockList, StockInformationHistory, StockPriceHistory
 
 
 class UpdateStocksFromYahooapi:
+    """
+    - 해당 클래스는 yahoo api https://yfapi.net 를 호출하여 데이터를 가져오고 db에 업데이트하는 코드
+     - 장점: api를 이용하는 것이므로 리턴 값이 정형화 되어 있어, 핸들링하기 편함
+     - 단점: API를 이용하기에 무료계정에서는, 호출 제한이 존재
+    """
     def __init__(self, market):
         self.database = dbModule.Database() # it is needed for handling database using raw SQL
 
@@ -27,7 +32,7 @@ class UpdateStocksFromYahooapi:
         self.market = market
 
         self.base_url = 'https://yfapi.net'
-        self.yahoofinance_api_key = 'i5EPueJwqg2NEnHat9Xf82h9MI4JFiTF5pGKMy6W'
+        self.yahoofinance_api_key = 'SWWKCLlCepeCqIA5qcICawFpEYJQeYz4YPMLmCk3'
 
         '''
         yahoo api test key(for debug):
@@ -159,9 +164,12 @@ class UpdateStocksFromYahooapi:
             stockslisting_dict_slice = stockslisting_dict.iloc[0:maximum_number_of_stocks_loaded_at_once]
 
             query_symbols = ''
-            if self.market in ["KOSPI", "KOSDAQ", "KRX", "KONEX"]:
+            if self.market == "KOSPI":
                 for _, value in stockslisting_dict_slice.iterrows():
                     query_symbols += value["Symbol"]+".KS,"
+            elif self.market == "KOSDAQ":
+                for _, value in stockslisting_dict_slice.iterrows():
+                    query_symbols += value["Symbol"]+".KQ,"
             else:
                 for _, value in stockslisting_dict_slice.iterrows():
                     query_symbols += value["Symbol"]+","
@@ -194,9 +202,10 @@ class UpdateStocksFromYahooapi:
                             object_from_stockpricehistory.save()
 
                         except StockPriceHistory.DoesNotExist:
-                            StockPriceHistory.objects.create(ticker = object_from_stocklist
-                                                        ,update_date = update_date
-                                                        ,price_close = price_close)
+                            if price_close is not None:
+                                StockPriceHistory.objects.create(ticker = object_from_stocklist
+                                                            ,update_date = update_date
+                                                            ,price_close = price_close)
 
                 except StockList.DoesNotExist:
                     print(f"{ticker} 종목은 'api_stocklist'에 등록되지 않았네요. Continued...")
@@ -208,4 +217,4 @@ class UpdateStocksFromYahooapi:
 if __name__ == "__main__":
     updater = UpdateStocksFromYahooapi("NASDAQ")
     updater.update_stockquote_from_yahooapi()
-    updater.update_stockpricehistory_from_yahooapi(history_range="1mo")
+    updater.update_stockpricehistory_from_yahooapi(history_range="max")

@@ -9,7 +9,10 @@
 *.mwb
 
 # configuration file
-config.py
+config.json
+
+# reference code folder
+db_handler/reference_code/
 
 # AWS 클라우드 pem
 cloud/
