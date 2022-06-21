@@ -32,7 +32,7 @@ class UpdateStocksFromYahooapi:
         self.market = market
 
         self.base_url = 'https://yfapi.net'
-        self.yahoofinance_api_key = 'SWWKCLlCepeCqIA5qcICawFpEYJQeYz4YPMLmCk3'
+        self.yahoofinance_api_key = 'eCYZqLy7UE6MM2KYFh3JB8WZKCzxa0NG5fzhHo4q'
 
         '''
         yahoo api test key(for debug):
