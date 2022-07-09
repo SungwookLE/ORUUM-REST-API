@@ -5,7 +5,7 @@
 version: "3"
 services:
   oruum:
-    image: joker1251/oruum-backend:2207-1
+    image: joker1251/oruum-backend:2207-2
     container_name : oruum-backend
     working_dir: /home/ORUUM-REST-API
     ports: 
@@ -33,7 +33,7 @@ services:
     restart: always
     volumes:
       - .:/home/ORUUM-REST-API
-      - ./config/nginx:/etc/nginx.conf.d
+      - ./config/nginx:/etc/nginx/conf.d
     depends_on : 
       - oruum
   
