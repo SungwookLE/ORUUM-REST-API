@@ -10,7 +10,7 @@ with open(config_file) as f:
 
 SECRET_KEY = secrets["django_config"]["SECRET_KEY"]
 DEBUG = False
-ALLOWED_HOSTS = ['3.38.30.153']
+ALLOWED_HOSTS = ['3.37.170.52']
 
 DATABASES = {
     'default': {

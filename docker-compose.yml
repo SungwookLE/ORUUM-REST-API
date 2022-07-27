@@ -1,13 +1,66 @@
-version: '3'
+####################################################
+#### File: docker-compose.yml  #####################
+#### Writer: sungwookLE        #####################
+#### Initial Build : `docker-compose up --build` ###
+#### After Initialization : `docker-compose up`  ###
+####################################################
+version: "3"
 services:
- oruum-db:
-  image: joker1251/oruum-backend:2206
-  environment:
-   - MYSQL_ROOT_PASSWORD=test
-  ports:
-   - "3306:3306"
-   - "5000:5000"
-  command: tail -f /dev/null
-  stdin_open: true
-  tty: true
-  entrypoint: /bin/bash
+  oruum:
+    image: joker1251/oruum-backend:2207-2
+    container_name : oruum-backend
+    working_dir: /home/ORUUM-REST-API
+    ports:
+      - "8000:8000"
+    restart: always
+    command: >
+      bash -c "
+      python3 manage.py makemigrations
+      && python3 manage.py migrate
+      && gunicorn backend.wsgi:application -b 0.0.0.0:8000"
+    depends_on :
+      - mysql
+    volumes:
+      - .:/home/ORUUM-REST-API
+    links:
+      - mysql
+    expose:
+      - 8000
+
+  nginx:
+    image: joker1251/oruum-nginx:2206
+    container_name : oruum-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - .:/home/ORUUM-REST-API
+      - ./config/nginx:/etc/nginx/conf.d
+      - ./config/certbot/conf:/etc/letsencrypt
+      - ./config/certbot/www:/var/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    depends_on :
+      - oruum
+
+  certbot:
+    image: certbot/certbot:v1.26.0
+    container_name:  oruum-ssl
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    restart: always
+    volumes:
+      - ./config/certbot/conf:/etc/letsencrypt
+      - ./config/certbot/www:/var/www/certbot
+      - ./config/certbot/log:/var/log/letsencrypt
+
+  mysql:
+    image: joker1251/oruum-mysql:2206
+    container_name : oruum-mysql
+    ports:
+      - "3306:3306"
+    restart: always
+    volumes:
+      - .:/home/ORUUM-REST-API
+    environment:
+      MYSQL_ROOT_PASSWORD: 3102
+      MYSQL_DATABASE: oruum_db
