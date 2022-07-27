@@ -1,4 +1,9 @@
-#!/bin/bash
+######################################################################################################################
+### File: init-letsencrypt.sh                                                                               ##########
+### Writer: sungwookLE                                                                                      ##########
+### Note: check the staging, data_path, email before `sudo ./init-letsencrypt.sh`.                          ##########
+### Reference: pentacent.medium.com/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71  ##########
+######################################################################################################################
 
 if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
@@ -9,7 +14,7 @@ domains=(api2.oruum.com)
 rsa_key_size=4096
 data_path="./config/certbot"
 email="manager@oruum.com" # Adding a valid address is strongly recommended
-staging=1 # Set to 1 if you're testing your setup to avoid hitting request limits
+staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then
   read -p "Existing data found for $domains. Continue and replace existing certificate? (y/N) " decision

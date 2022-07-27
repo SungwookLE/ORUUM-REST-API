@@ -1,14 +1,16 @@
-#첫 빌드시 : docker-compose up --build
-#이후 : docker-compose up
-# 방화벽 설정으로 실행 안될때 iptables 초기화 
-# sudo iptables -t filter -F && sudo iptables -t filter -X && sudo systemctl restart docker
+####################################################
+#### File: docker-compose.yml  #####################
+#### Writer: sungwookLE        #####################
+#### Initial Build : `docker-compose up --build` ###
+#### After Initialization : `docker-compose up`  ###
+####################################################
 version: "3"
 services:
   oruum:
     image: joker1251/oruum-backend:2207-2
     container_name : oruum-backend
     working_dir: /home/ORUUM-REST-API
-    ports: 
+    ports:
       - "8000:8000"
     restart: always
     command: >
@@ -24,30 +26,33 @@ services:
       - mysql
     expose:
       - 8000
-   
+
   nginx:
     image: joker1251/oruum-nginx:2206
     container_name : oruum-nginx
     ports:
       - "80:80"
+      - "443:443"
     restart: always
     volumes:
       - .:/home/ORUUM-REST-API
       - ./config/nginx:/etc/nginx/conf.d
       - ./config/certbot/conf:/etc/letsencrypt
       - ./config/certbot/www:/var/www/certbot
-
-    depends_on : 
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    depends_on :
       - oruum
-  
+
   certbot:
     image: certbot/certbot:v1.26.0
     container_name:  oruum-ssl
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     restart: always
     volumes:
       - ./config/certbot/conf:/etc/letsencrypt
       - ./config/certbot/www:/var/www/certbot
-    
+      - ./config/certbot/log:/var/log/letsencrypt
+
   mysql:
     image: joker1251/oruum-mysql:2206
     container_name : oruum-mysql
