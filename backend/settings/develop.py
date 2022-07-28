@@ -10,7 +10,7 @@ with open(config_file) as f:
 SECRET_KEY = secrets["django_config"]["SECRET_KEY"]
 DEBUG = True
 # blank means 'localhost', '127.0.0.1'
-ALLOWED_HOSTS = ['localhost', 'oruum-api-server', '127.0.0.1', '3.37.170.52', '0.0.0.0']
+ALLOWED_HOSTS = ['localhost', 'oruum-api-server', 'api2.oruum.com', '3.37.170.52', '0.0.0.0']
 
 DATABASES = {
     'default': {
@@ -18,8 +18,8 @@ DATABASES = {
         'NAME':  secrets["db_config"]["schema"],
         'USER': secrets["db_config"]["user"],
         'PASSWORD': secrets["db_config"]["password"],
-        'HOST': 'localhost', # if run in local, HoST is 'localhost'
-        #'HOST': 'oruum-mysql', # if using, docker-compose
+        # 'HOST': 'localhost', # if run in local, HoST is 'localhost'
+        'HOST': 'oruum-mysql', # if using, docker-compose
         'PORT': '3306',
     }
 }
