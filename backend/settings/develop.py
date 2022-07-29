@@ -18,8 +18,8 @@ DATABASES = {
         'NAME':  secrets["db_config"]["schema"],
         'USER': secrets["db_config"]["user"],
         'PASSWORD': secrets["db_config"]["password"],
-        # 'HOST': 'localhost', # if run in local, HoST is 'localhost'
-        'HOST': 'oruum-mysql', # if using, docker-compose
+        'HOST': 'localhost', # if run in local, HoST is 'localhost'
+        # 'HOST': 'oruum-mysql', # if using, docker-compose
         'PORT': '3306',
     }
 }

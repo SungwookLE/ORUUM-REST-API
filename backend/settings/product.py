@@ -10,15 +10,15 @@ with open(config_file) as f:
 
 SECRET_KEY = secrets["django_config"]["SECRET_KEY"]
 DEBUG = False
-ALLOWED_HOSTS = ['3.37.170.52']
+ALLOWED_HOSTS = ['api2.oruum.com', '3.37.170.52', 'oruum-api-server']
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': secrets["db_config"]["schema"],
+        'NAME':  secrets["db_config"]["schema"],
         'USER': secrets["db_config"]["user"],
         'PASSWORD': secrets["db_config"]["password"],
-        'HOST': 'localhost',  # 수정해야함 배포시('22.4/7)
+        'HOST': 'oruum-mysql', 
         'PORT': '3306',
     }
 }
