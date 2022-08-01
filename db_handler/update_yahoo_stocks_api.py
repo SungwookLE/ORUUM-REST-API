@@ -14,7 +14,7 @@ import re
 
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.develop")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.product")
 django.setup()
 from api.models import StockList, StockInformationHistory, StockPriceHistory
 
@@ -26,13 +26,13 @@ class UpdateStocksFromYahooapi:
      - 단점: API를 이용하기에 무료계정에서는, 호출 제한이 존재
     """
     def __init__(self, market):
-        self.database = dbModule.Database() # it is needed for handling database using raw SQL
+        # self.database = dbModule.Database() # it is needed for handling database using raw SQL
 
         self.stockslisting_dict = self.get_symbollist_from_financedatareader(market)
         self.market = market
 
         self.base_url = 'https://yfapi.net'
-        self.yahoofinance_api_key = 'eCYZqLy7UE6MM2KYFh3JB8WZKCzxa0NG5fzhHo4q'
+        self.yahoofinance_api_key = '4Xqq9Qxr7G1GD1dvtSjAk619ZSwLvY2NWmBAFmq9'
 
         '''
         yahoo api test key(for debug):

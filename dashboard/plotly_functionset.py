@@ -62,16 +62,16 @@ def get_stocklist_plotly_object_as_bar(market):
 ##########################################################################
 # for stateless-dash-app
 ##########################################################################
-#GET data from database
-#ticker_from_stocklist = StockPriceHistory.objects.values_list('ticker')
-#ticker_from_stocklist = set(ticker_from_stocklist)
-#ticker_dropdown_options = [ticker[0] for ticker in ticker_from_stocklist]
+# # GET data from database
+# ticker_from_stocklist = StockPriceHistory.objects.values_list('ticker')
+# ticker_from_stocklist = set(ticker_from_stocklist)
+# ticker_dropdown_options = [ticker[0] for ticker in ticker_from_stocklist]
 
-#Create DjangoDash applicaiton
-#app = DjangoDash(name='StockPriceHistory')
+# # Create DjangoDash applicaiton
+# app = DjangoDash(name='StockPriceHistory')
 
-#Configure app layout
-#app.layout = html.Div([
+# # Configure app layout
+# app.layout = html.Div([
 #    html.Div([
 #        #Add dropdown for option selection
 #        dcc.Dropdown(
@@ -83,11 +83,11 @@ def get_stocklist_plotly_object_as_bar(market):
 #    html.Div([
 #        dcc.Graph(id='history_plot',
 #                  style={"backgroundColor": "#FFF0F5"})])
-#])
-##########################################################################
+# ])
+# ##########################################################################
 
 
-#@app.callback(Output('history_plot', 'figure'),  # id of html component
+# @app.callback(Output('history_plot', 'figure'),  # id of html component
 #              [Input('ticker_options', 'value')])  # id of html component
 def callback_stockpricehistory_as_line(ticker):
     """
