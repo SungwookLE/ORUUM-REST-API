@@ -32,12 +32,12 @@ class UpdateStocksFromYahooapi:
         self.market = market
 
         self.base_url = 'https://yfapi.net'
-        self.yahoofinance_api_key = '4Xqq9Qxr7G1GD1dvtSjAk619ZSwLvY2NWmBAFmq9'
+        self.yahoofinance_api_key = 'WSA8c7Ux102dDSwJAt8gq2STA5umMyuKTExXaoAc'
 
         '''
         yahoo api test key(for debug):
         self.yahoofinance_api_key = '5qYXdE6x0N768DcH5mdu76C7RlIjZI6I9wtltqbv' #@google 계정 api키
-        self.yahoofinance_api_key = 'SWWKCLlCepeCqIA5qcICawFpEYJQeYz4YPMLmCk3' #@naver 계정 api키
+        self.yahoofinance_api_key = 'WSA8c7Ux102dDSwJAt8gq2STA5umMyuKTExXaoAc' #@naver 계정 api키
         self.yahoofinance_api_key = 'i5EPueJwqg2NEnHat9Xf82h9MI4JFiTF5pGKMy6W' #@daum 계정 api키
         '''
 
