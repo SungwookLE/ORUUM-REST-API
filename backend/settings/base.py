@@ -132,7 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS_ORIGIN_WHITELIST: List of origins that are authorized to make cross-site HTTP requests. Defaults to [].
 CORS_ORIGIN_WHITELIST = ['http://3.37.170.52', 'http://localhost:8000']
 CORS_ORIGIN_ALLOW_ALL = True
-CSRF_TRUSTED_ORIGINS = ['http://3.37.170.52', "https://api2.oruum.com"]
+CSRF_TRUSTED_ORIGINS = ['http://3.37.170.52', "https://api.oruum.com"]
 # ========================================
 
 # ========================================
