@@ -9,7 +9,7 @@ with open(config_file) as f:
 
 SECRET_KEY = secrets["django_config"]["SECRET_KEY"]
 DEBUG = False
-ALLOWED_HOSTS = ['api2.oruum.com', '3.37.170.52', 'oruum-api-server']
+ALLOWED_HOSTS = ['api.oruum.com', '3.37.170.52', 'oruum-api-server']
 
 DATABASES = {
     'default': {

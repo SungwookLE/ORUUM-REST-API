@@ -10,7 +10,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-domains=(api2.oruum.com)
+domains=(api.oruum.com)
 rsa_key_size=4096
 data_path="./config/certbot"
 email="manager@oruum.com" # Adding a valid address is strongly recommended

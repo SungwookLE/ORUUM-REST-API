@@ -12,7 +12,7 @@ import re
 from stock_info.get_yahoo_stocks import YahooStockCrawler
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.develop")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.product")
 django.setup()
 from api.models import StockList, StockInformationHistory, StockPriceHistory
 
