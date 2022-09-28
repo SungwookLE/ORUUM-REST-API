@@ -12,7 +12,7 @@ import re
 from stock_info.get_yahoo_stocks import YahooStockCrawler
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.product")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.develop")
 django.setup()
 from api.models import StockList, StockInformationHistory, StockPriceHistory
 
@@ -87,9 +87,9 @@ class UpdateStocksFromYahoo:
 
         return
 
-    def update_stocks_price_history_from_yahoo(self):
+    def update_stocks_price_history_from_yahoo(self, range="max"):
         #주식 가격 히스토리
-        self.stocks_price_history = self.yf.get_stocks_price_history(range="max")
+        self.stocks_price_history = self.yf.get_stocks_price_history(range=range)
 
         progress_bar = tqdm(self.stocks_price_history)
         progress_bar.set_description("StockPriceHistory Database Update")
@@ -158,5 +158,5 @@ class UpdateStocksFromYahoo:
 if __name__ == "__main__":
     updater = UpdateStocksFromYahoo("NASDAQ")
     updater.update_stockquote_from_yahoo()
-    updater.update_stocks_price_history_from_yahoo()
+    updater.update_stocks_price_history_from_yahoo(range="max")
     updater.update_stocks_information_history_from_yahoo()
