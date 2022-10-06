@@ -13,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 
-from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer
+from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer
 from api.models import StockList, StockInformationHistory, StockPriceHistory
 
 import re
@@ -162,3 +162,47 @@ class StockSummaryAPIView(RetrieveAPIView):
             '52weekLow': f'{weekLow52["price"]:.2f}',
             "fallingPercentageFrom52WeekHigh": f'{(weekHigh52["price"]- obj.price) / weekHigh52["price"]:.2f}',
         })
+        
+
+class StockYearlyFinancialStatementsAPIView(ListAPIView):
+    serializer_class = StockYearlyFinancialStatementsSerializer
+
+    def get_queryset(self):
+        return StockInformationHistory.objects.filter(ticker=self.kwargs["ticker"])\
+           .filter(update_dt__range=[self.kwargs["s_date"], self.kwargs["e_date"]]).reverse() # update_date -> update_dt 
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return_dict = dict()
+        return_dict["success"] = True
+        return_dict["dateArray"] = list()
+        return_dict["revenueArray"] = list()
+        return_dict["costOfRevenueArray"] = list()
+        
+        return_dict["grossProfit"] = list()
+        return_dict["operatingExpense"] = list()
+        return_dict["operatingIncome"] = list()
+
+        return_dict["costOfRevenueArray"] = list()
+        return_dict["basicEpsArray"] = list()
+        return_dict["dilutedEpsArray"] = list()
+        
+        for idx, item in enumerate(serializer.data):
+            iter_dict = json.loads(json.dumps(item))
+            return_dict["dateArray"].append(iter_dict["update_dt"]) # update_date
+        #     return_dict["closeArray"].append(iter_dict["price_close"])
+        #     return_dict["openArray"].append(iter_dict["price_open"])
+        #     return_dict["highArray"].append(iter_dict["price_high"])
+        #     return_dict["lowArray"].append(iter_dict["price_low"])
+        #     return_dict["volumeArray"].append(iter_dict["volume"])
+
+        return Response(return_dict)
+
