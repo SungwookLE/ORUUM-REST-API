@@ -51,7 +51,9 @@ class StockInformationHistory(models.Model):
 
     #id = models.BigAutoField(help_text="id_stockinformationhistory", primary_key=True)
     ticker = models.OneToOneField("StockList", related_name="stockinformationhistory", on_delete=models.CASCADE, db_column = "ticker", primary_key=True)
+    update_date = models.DateField(help_text='업데이트 날짜', default=datetime.today) # 
 
+    
     yearly_income_statement = models.JSONField(help_text="연간 손익계산서", blank=True, null=True)
     yearly_balance_sheet= models.JSONField(help_text="연간 재무상태표", blank=True, null=True)
     yearly_cash_flow= models.JSONField(help_text="연간 현금흐름표", blank=True, null=True)
