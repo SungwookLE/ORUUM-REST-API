@@ -182,28 +182,28 @@ class StockYearlyFinancialStatementsAPIView(ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
 
         return_dict = dict()
-        return_dict["success"] = True
         return_dict["dateArray"] = list()
         return_dict["revenueArray"] = list()
         return_dict["costOfRevenueArray"] = list()
-        return_dict["grossProfit"] = list()  
+        return_dict["grossProfit"] = list() 
         return_dict["operatingExpense"] = list()
         return_dict["operatingIncome"] = list()
-        return_dict["basicEpsArray"] = list() # 작업필요 
-        return_dict["dilutedEpsArray"] = list() # 작업필요 
+        return_dict["basicEpsArray"] = list() # ttmEPS
+        return_dict["dilutedEpsArray"] = list() # ttmEPS
         
         for idx, item in enumerate(serializer.data):
             iter_dict = json.loads(json.dumps(item))
             tmp_dict = json.loads(iter_dict["yearly_income_statement"])
-            # print(json.loads(iter_dict["yearly_income_statement"]))
-            tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} # 내림차순 정렬 
-            return_dict["dateArray"] = tmp_dict.keys() 
-            return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
-            return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
-            return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
-            return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
-            return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
-
+            try: 
+                tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
+                return_dict["dateArray"] = tmp_dict.keys() 
+                return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
+                return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
+                return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
+                return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
+                return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
+            except KeyError: 
+                print()
             # return_dict["basicEpsArray"].append(iter_dict["volume"])
             # return_dict["dilutedEpsArray"].append(iter_dict["volume"])
 
