@@ -146,7 +146,7 @@ class StockSummaryAPIView(RetrieveAPIView):
             'ticker': obj.ticker,
             'koreanName': obj.name_korea,
             'englishName': obj.name_english,
-            'tagList': list(), # (10/12) 추후에, staff가 직접 입력하던지 또는, 기사 분석해서 자동으로 tag 정보 넣어줄것인지 구현해서 채우기, 성욱
+            'tagList': list(),
             'priceUnit': priceUnit,
             'currentPrice': f"{obj.price:.2f}",
             'dailyChange': f"{obj.price-obj.price_open:.2f}",
@@ -197,15 +197,31 @@ class StockYearlyFinancialStatementsAPIView(ListAPIView):
             try: 
                 tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
                 return_dict["dateArray"] = tmp_dict.keys() 
+            except KeyError: 
+                print() 
+            try: 
                 return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
+            except KeyError: 
+                print() 
+            try: 
                 return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
+            except KeyError: 
+                print() 
+            try: 
                 return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
+            except KeyError: 
+                print() 
+            try: 
                 return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
+            except: 
+                print() 
+            try: 
                 return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
             except KeyError: 
                 print()
-            # return_dict["basicEpsArray"].append(iter_dict["volume"])
-            # return_dict["dilutedEpsArray"].append(iter_dict["volume"])
+            return_dict["basicEpsArray"].append(iter_dict["ttmEPS"])
+            return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
 
         return Response(return_dict)
 
+# (10/19) 역할분담 get Stock quarterly financial statements - 성욱,  get Stock CEO - 민주 
