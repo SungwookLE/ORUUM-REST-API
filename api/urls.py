@@ -42,7 +42,7 @@ urlpatterns = [
     path('stocksummary/<str:ticker>/', 
           StockSummaryAPIView.as_view(), name='stocksummary-detail'),
     
-    # (10/03) API 요구사항 반영을 위한 신규 REST url 생성3
+    # (10/03->10/12: 민주) API 요구사항 반영을 위한 신규 REST url 생성3
     path('stockyearlyfinancialstatements/<str:ticker>/',  
           StockYearlyFinancialStatementsAPIView.as_view(), name='stockyearlyfinancialstatements-list')
 ]
