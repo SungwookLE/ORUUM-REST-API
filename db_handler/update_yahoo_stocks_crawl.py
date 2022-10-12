@@ -116,7 +116,7 @@ class UpdateStocksFromYahoo:
 
     def update_stocks_information_history_from_yahoo(self):
         
-        for yearly_income_statement, yearly_balance_sheet, yearly_cash_flow, quarterly_income_statement, quarterly_balance_sheet, quarterly_cash_flow in self.yf.get_stocks_information_history():
+        for yearly_income_statement, yearly_balance_sheet, yearly_cash_flow, quarterly_income_statement, quarterly_balance_sheet, quarterly_cash_flow, statistics_financial_data in self.yf.get_stocks_information_history():
             
             try:
                 json_yearly_income_statement_data = yearly_income_statement.to_json(orient = 'columns')
@@ -126,6 +126,10 @@ class UpdateStocksFromYahoo:
                 json_quarterly_income_statement_data = quarterly_income_statement.to_json(orient = 'columns')
                 json_quarterly_balance_sheet_data = quarterly_balance_sheet.to_json(orient = 'columns')
                 json_quarterly_cash_flow_data = quarterly_cash_flow.to_json(orient = 'columns')
+
+                dict_statistics_financial_data = statistics_financial_data["value"]
+                print(dict_statistics_financial_data)
+
                 ticker = yearly_income_statement.index.name
 
                 object_from_stocklist = StockList.objects.get(ticker=ticker)
@@ -144,7 +148,19 @@ class UpdateStocksFromYahoo:
                     object_from_stockinformationhistory.quarterly_balance_sheet = json_quarterly_balance_sheet_data
                     object_from_stockinformationhistory.quarterly_cash_flow = json_quarterly_cash_flow_data
 
+                    object_from_stockinformationhistory.ttmPER = dict_statistics_financial_data["ttmPER"]
+                    object_from_stockinformationhistory.ttmPSR = dict_statistics_financial_data["ttmPSR"]
+                    object_from_stockinformationhistory.ttmPBR = dict_statistics_financial_data["ttmPBR"]
+                    object_from_stockinformationhistory.ttmPEGR = dict_statistics_financial_data["ttmPEGR"]
+                    object_from_stockinformationhistory.ttmEPS = dict_statistics_financial_data["ttmEPS"]
+                    object_from_stockinformationhistory.forwardPER = dict_statistics_financial_data["forwardPER"]
+                    object_from_stockinformationhistory.forwardPSR = dict_statistics_financial_data["forwardPSR"]
+                    object_from_stockinformationhistory.forwardEPS = dict_statistics_financial_data["forwardEPS"]
+                    object_from_stockinformationhistory.marketCap = dict_statistics_financial_data["marketCap"]
+                    object_from_stockinformationhistory.fiftytwoweek_high  = dict_statistics_financial_data["fiftytwoweek_high"]
+                    object_from_stockinformationhistory.fiftytwoweek_low  = dict_statistics_financial_data["fiftytwoweek_low"]
 
+                    
                 except StockInformationHistory.DoesNotExist:
                     StockInformationHistory.objects.create(ticker=object_from_stocklist,
                                             yearly_income_statement=json_yearly_income_statement_data,
@@ -152,11 +168,22 @@ class UpdateStocksFromYahoo:
                                             yearly_cash_flow=json_yearly_cash_flow_data, 
                                             quarterly_income_statement=json_quarterly_income_statement_data, 
                                             quarterly_balance_sheet=json_quarterly_balance_sheet_data, 
-                                            quarterly_cash_flow=json_quarterly_cash_flow_data
+                                            quarterly_cash_flow=json_quarterly_cash_flow_data,
+                                            ttmPER = dict_statistics_financial_data["ttmPER"],
+                                            ttmPSR = dict_statistics_financial_data["ttmPSR"],
+                                            ttmPBR = dict_statistics_financial_data["ttmPBR"],
+                                            ttmPEGR = dict_statistics_financial_data["ttmPEGR"],
+                                            ttmEPS = dict_statistics_financial_data["ttmEPS"],
+                                            forwardPER = dict_statistics_financial_data["forwardPER"],
+                                            forwardPSR = dict_statistics_financial_data["forwardPSR"],
+                                            forwardEPS = dict_statistics_financial_data["forwardEPS"],
+                                            marketCap = dict_statistics_financial_data["marketCap"],
+                                            fiftytwoweek_high  = dict_statistics_financial_data["fiftytwoweek_high"],
+                                            fiftytwoweek_low  = dict_statistics_financial_data["fiftytwoweek_low"]
                                             )
 
 if __name__ == "__main__":
     updater = UpdateStocksFromYahoo("NASDAQ")
-    updater.update_stockquote_from_yahoo()
-    updater.update_stocks_price_history_from_yahoo(range="max")
+    #updater.update_stockquote_from_yahoo()
+    #updater.update_stocks_price_history_from_yahoo(range="max")
     updater.update_stocks_information_history_from_yahoo()

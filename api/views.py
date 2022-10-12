@@ -143,12 +143,6 @@ class StockSummaryAPIView(RetrieveAPIView):
 
         priceUnit = "dollar" if re.search("^NYSE|^Nasdaq", obj.market) else None
 
-        endweek = datetime.datetime.today()
-        startweek = endweek - datetime.timedelta(weeks=52)
-        weekHigh52 = obj.stockpricehistory.filter(ticker=ticker, update_date__range=[startweek, endweek]).aggregate(price=Max('price_high'))
-        weekLow52 = obj.stockpricehistory.filter(ticker=ticker, update_date__range=[startweek, endweek]).aggregate(price=Min('price_low'))
-
-        # (9/28) PER, PBR 등 관련 정보 구현 아직입니다. (성욱)
         return Response({
             'ticker': obj.ticker,
             'koreanName': obj.name_korea,
@@ -158,9 +152,17 @@ class StockSummaryAPIView(RetrieveAPIView):
             'currentPrice': f"{obj.price:.2f}",
             'dailyChange': f"{obj.price-obj.price_open:.2f}",
             'dailyChangePercentage': f"{(obj.price-obj.price_open)/obj.price_open:.2f}",
-            '52weekHigh': f'{weekHigh52["price"]:.2f}',
-            '52weekLow': f'{weekLow52["price"]:.2f}',
-            "fallingPercentageFrom52WeekHigh": f'{(weekHigh52["price"]- obj.price) / weekHigh52["price"]:.2f}',
+            '52weekHigh': f"{obj.stockinformationhistory.fiftytwoweek_high:.2f}" if (obj.stockinformationhistory.fiftytwoweek_high is not None) else None,
+            '52weekLow': f"{obj.stockinformationhistory.fiftytwoweek_low:.2f}" if (obj.stockinformationhistory.fiftytwoweek_low is not None) else None,
+            "fallingPercentageFrom52WeekHigh": f'{(obj.stockinformationhistory.fiftytwoweek_high- obj.price) / obj.stockinformationhistory.fiftytwoweek_high:.2f}',
+            "ttmPER" : f"{obj.stockinformationhistory.ttmPER:.2f}" if (obj.stockinformationhistory.ttmPER is not None) else None,
+            "ttmPSR" : f"{obj.stockinformationhistory.ttmPSR:.2f}" if (obj.stockinformationhistory.ttmPSR is not None) else None,
+            "ttmPBR" : f"{obj.stockinformationhistory.ttmPBR:.2f}" if (obj.stockinformationhistory.ttmPBR is not None) else None,
+            "ttmPEGR" : f"{obj.stockinformationhistory.ttmPEGR:.2f}" if (obj.stockinformationhistory.ttmPEGR is not None) else None,
+            "forwardPER" : f"{obj.stockinformationhistory.forwardPER:.2f}" if (obj.stockinformationhistory.forwardPER is not None) else None,
+            "forwardPSR" : f"{obj.stockinformationhistory.forwardPSR:.2f}" if (obj.stockinformationhistory.forwardPSR is not None) else None,
+            "marketCap" : f"{obj.stockinformationhistory.marketCap:.2f}" if (obj.stockinformationhistory.marketCap is not None) else None,
+            "ttmpEPS" : f"{obj.stockinformationhistory.ttmEPS:.2f}" if (obj.stockinformationhistory.ttmEPS is not None) else None
         })
         
 

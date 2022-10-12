@@ -60,6 +60,21 @@ class StockInformationHistory(models.Model):
     quarterly_balance_sheet= models.JSONField(help_text="분기 재무상태표", blank=True, null=True)
     quarterly_cash_flow= models.JSONField(help_text="분기 현금흐름표", blank=True, null=True)
 
+    ttmPER = models.FloatField(help_text="trailing 12 months PER", blank=True, null=True)
+    ttmPSR = models.FloatField(help_text="trailing 12 months PSR", blank=True, null=True)
+    ttmPBR = models.FloatField(help_text="trailing 12 months PBR", blank=True, null=True)
+    ttmPEGR = models.FloatField(help_text="trailing 12 months PEGR", blank=True, null=True)
+    ttmEPS = models.FloatField(help_text="trailing 12 months EPS", blank=True, null=True)
+
+    forwardPER = models.FloatField(help_text="forward PER", blank=True, null=True)
+    forwardPSR = models.FloatField(help_text="forward PSR", blank=True, null=True)
+    forwardEPS = models.FloatField(help_text="forward EPS", blank=True, null=True)
+
+    marketCap = models.FloatField(help_text="marketCap", blank=True, null=True)
+
+    fiftytwoweek_high = models.FloatField(help_text="52주 최고가", blank=True, null=True)
+    fiftytwoweek_low  = models.FloatField(help_text="52주 최저가", blank=True, null=True)
+
     update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
     create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
 

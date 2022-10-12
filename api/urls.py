@@ -34,11 +34,11 @@ urlpatterns = [
 
 
 
-    # (9/16) API 요구사항 반영을 위한 신규 REST url 생성1
+    # (9/16: 성욱) API 요구사항 반영을 위한 신규 REST url 생성1
     path('historicalstockprice/<str:ticker>/<date:s_date>-<date:e_date>/', 
           HistoricalStockPriceAPIView.as_view(), name='historicalstockprice-list'),
 
-    # (9/20) API 요구사항 반영을 위한 신규 REST url 생성2
+    # (9/20->10/12: 성욱) API 요구사항 반영을 위한 신규 REST url 생성2
     path('stocksummary/<str:ticker>/', 
           StockSummaryAPIView.as_view(), name='stocksummary-detail'),
     
