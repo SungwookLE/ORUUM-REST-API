@@ -184,6 +184,6 @@ class UpdateStocksFromYahoo:
 
 if __name__ == "__main__":
     updater = UpdateStocksFromYahoo("NASDAQ")
-    #updater.update_stockquote_from_yahoo()
-    #updater.update_stocks_price_history_from_yahoo(range="max")
+    updater.update_stockquote_from_yahoo()
+    updater.update_stocks_price_history_from_yahoo(range="max")
     updater.update_stocks_information_history_from_yahoo()

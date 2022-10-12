@@ -146,7 +146,7 @@ class StockSummaryAPIView(RetrieveAPIView):
             'ticker': obj.ticker,
             'koreanName': obj.name_korea,
             'englishName': obj.name_english,
-            'tagList': list(),
+            'tagList': list(), # (10/12) 추후에, staff가 직접 입력하던지 또는, 기사 분석해서 자동으로 tag 정보 넣어줄것인지 구현해서 채우기, 성욱
             'priceUnit': priceUnit,
             'currentPrice': f"{obj.price:.2f}",
             'dailyChange': f"{obj.price-obj.price_open:.2f}",
