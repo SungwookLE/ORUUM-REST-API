@@ -92,7 +92,8 @@ class YahooStockCrawler(GetTicker, YahooStockFunctionSet):
                 ticker_str += ticker
 
             tickers_df.drop(ticker_df_slice.index, inplace=True)
-            dataframe_Raw_financial_data = yahoofin.get_financials(ticker=ticker_str, yearly=yearly, quarterly=quarterly)
+            dataframe_Raw_financial_data = YahooStockFunctionSet.get_financials(ticker=ticker_str, yearly=yearly, quarterly=quarterly)
+            statistics_financial_data = YahooStockFunctionSet.get_statistics(ticker=ticker_str)
 
             # Yearly Data
             dataframe_yearly_income_statement_data = pd.concat([(dataframe_Raw_financial_data["yearly_income_statement"])], axis=0)
@@ -124,7 +125,7 @@ class YahooStockCrawler(GetTicker, YahooStockFunctionSet):
 
             progress_bar.update(maximum_number_of_stocks_loaded_at_once)
 
-            return_dataframe_list = [dataframe_yearly_income_statement_data, dataframe_yearly_balance_sheet_data, dataframe_yearly_cash_flow_data, dataframe_quarterly_income_statement_data, dataframe_quarterly_balance_sheet_data, dataframe_quarterly_cash_flow_data]
+            return_dataframe_list = [dataframe_yearly_income_statement_data, dataframe_yearly_balance_sheet_data, dataframe_yearly_cash_flow_data, dataframe_quarterly_income_statement_data, dataframe_quarterly_balance_sheet_data, dataframe_quarterly_cash_flow_data, statistics_financial_data]
 
             try:
                 for dataframe in return_dataframe_list:
@@ -142,10 +143,11 @@ if __name__ == "__main__":
     print(getter_stock.get_stocks_price()[["symbol","regularMarketPrice"]])
     print(getter_stock.get_stocks_price_history())
 
-    for yearly_income_statement, yearly_balance_sheet, yearly_cash_flow, quarterly_income_statement, quarterly_balance_sheet, quarterly_cash_flow in getter_stock.get_stocks_information_history():
+    for yearly_income_statement, yearly_balance_sheet, yearly_cash_flow, quarterly_income_statement, quarterly_balance_sheet, quarterly_cash_flow, statistics_financial_data in getter_stock.get_stocks_information_history():
         print(yearly_income_statement)
         print(yearly_balance_sheet)
         print(yearly_cash_flow)
         print(quarterly_income_statement)
         print(quarterly_balance_sheet)
         print(quarterly_cash_flow)
+        print(statistics_financial_data)

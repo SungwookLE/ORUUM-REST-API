@@ -2,6 +2,9 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
+import json
+import re
+import numpy as np
 
 class YahooStockFunctionSet:
 
@@ -84,3 +87,155 @@ class YahooStockFunctionSet:
 
         return frame
 
+    def _parse_json(url, headers = {'User-agent': 'Mozilla/5.0'}):
+        html = requests.get(url=url, headers = headers).text
+
+        json_str = html.split('root.App.main =')[1].split(
+            '(this)')[0].split(';\n}')[0].strip()
+        
+        try:
+            data = json.loads(json_str)[
+                'context']['dispatcher']['stores']['QuoteSummaryStore']
+            #timeseries_data = json.loads(json_str)['context']['dispatcher']['stores']['QuoteTimeSeriesStore']["timeSeries"]
+        except:
+            return '{}'
+        else:
+            # return data
+            new_data = json.dumps(data).replace('{}', 'null')
+            new_data = re.sub(r'\{[\'|\"]raw[\'|\"]:(.*?),(.*?)\}', r'\1', new_data)
+
+            json_info = json.loads(new_data)
+
+            return json_info
+
+
+    def _parse_table(json_info):
+
+        df = pd.DataFrame(json_info)
+        
+        if df.empty:
+            return df
+        
+        del df["maxAge"]
+
+        df.set_index("endDate", inplace=True)
+        df.index = pd.to_datetime(df.index, unit="s")
+    
+        df = df.transpose()
+        df.index.name = "Breakdown"
+
+        return df
+
+    def get_financials(ticker, yearly = True, quarterly = True):
+
+        '''Scrapes financials data from Yahoo Finance for an input ticker, including
+        balance sheet, cash flow statement, and income statement.  Returns dictionary
+        of results.
+        
+        @param: ticker
+        @param: yearly = True
+        @param: quarterly = True
+        '''
+
+        if not yearly and not quarterly:
+            raise AssertionError("yearly or quarterly must be True")
+        
+        financials_site = "https://finance.yahoo.com/quote/" + ticker + \
+                "/financials?p=" + ticker
+                
+        json_info = YahooStockFunctionSet._parse_json(financials_site)
+        
+        result = {}
+        
+        if yearly:
+            temp = json_info["incomeStatementHistory"]["incomeStatementHistory"]
+            table = YahooStockFunctionSet._parse_table(temp)
+            result["yearly_income_statement"] = table
+        
+            temp = json_info["balanceSheetHistory"]["balanceSheetStatements"]
+            table = YahooStockFunctionSet._parse_table(temp)
+            result["yearly_balance_sheet"] = table
+            
+            temp = json_info["cashflowStatementHistory"]["cashflowStatements"]
+            table = YahooStockFunctionSet._parse_table(temp)
+            result["yearly_cash_flow"] = table
+
+        if quarterly:
+            temp = json_info["incomeStatementHistoryQuarterly"]["incomeStatementHistory"]
+            table = YahooStockFunctionSet._parse_table(temp)
+            result["quarterly_income_statement"] = table
+        
+            temp = json_info["balanceSheetHistoryQuarterly"]["balanceSheetStatements"]
+            table = YahooStockFunctionSet._parse_table(temp)
+            result["quarterly_balance_sheet"] = table
+            
+            temp = json_info["cashflowStatementHistoryQuarterly"]["cashflowStatements"]
+            table = YahooStockFunctionSet._parse_table(temp)
+            result["quarterly_cash_flow"] = table
+
+            
+        return result
+
+    def get_statistics(ticker):
+        financials_site = "https://finance.yahoo.com/quote/" + ticker + \
+                "/key-statistics?p=" + ticker
+                
+        json_info = YahooStockFunctionSet._parse_json(financials_site)
+        result = {}
+
+
+
+        df = pd.DataFrame(json_info)
+        df.drop(['pageViews','financialsTemplate','price','quoteType', 'calendarEvents', 'financialData', 'symbol'], axis=1, inplace=True)
+
+        new_dict = dict()
+        new_dict["ticker"] = ticker
+        try:
+            new_dict["ttmPER"] = df["summaryDetail"]["trailingPE"]
+        except KeyError as E:
+            new_dict["ttmPER"] = None
+        try:
+            new_dict["ttmPSR"] = df["summaryDetail"]["priceToSalesTrailing12Months"]
+        except KeyError as E:
+            new_dict["ttmPSR"] = None
+        try:
+            new_dict["ttmPBR"] = df["defaultKeyStatistics"]["priceToBook"]
+        except KeyError as E:
+            new_dict["ttmPBR"] = None
+        try:        
+            new_dict["ttmPEGR"] = df["defaultKeyStatistics"]["pegRatio"]
+        except KeyError as E:
+            new_dict["ttmPEGR"] = None
+        try:
+            new_dict["forwardPER"] = df["defaultKeyStatistics"]["forwardPE"]
+        except KeyError as E:
+            new_dict["forwardPSR"] = None
+        try:
+            new_dict["marketCap"] = df["summaryDetail"]["marketCap"]
+        except KeyError as E:
+            new_dict["marketCap"] = None
+        try:
+            new_dict["forwardEPS"] = df["defaultKeyStatistics"]["forwardEps"]
+        except KeyError as E:
+            new_dict["forwardEPS"] = None
+        try:
+            new_dict["ttmEPS"] = df["defaultKeyStatistics"]["trailingEps"]
+        except KeyError as E:
+            new_dict["ttmEPS"] = None
+
+        try:
+            new_dict["fiftytwoweek_high"] = df["summaryDetail"]["fiftyTwoWeekHigh"]
+        except KeyError as E:
+            new_dict["fiftytwoweek_high"] = None
+
+        try:
+            new_dict["fiftytwoweek_low"] = df["summaryDetail"]["fiftyTwoWeekLow"]
+        except KeyError as E:
+            new_dict["fiftytwoweek_low"] = None
+
+        new_dict["forwardPSR"] = None # (10/12) yfin에 forwardPSR 정보 없음..
+
+        new_df = pd.DataFrame(new_dict, index=['value']).transpose()
+        new_df.replace({np.NaN: None}, inplace=True)
+
+        return new_df
