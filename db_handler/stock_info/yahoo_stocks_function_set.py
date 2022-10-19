@@ -238,3 +238,35 @@ class YahooStockFunctionSet:
         new_df.replace({np.NaN: None}, inplace=True)
 
         return new_df
+
+    def get_profile(ticker): 
+        financials_site = "https://finance.yahoo.com/quote/" + ticker + \
+                "/profile?p=" + ticker
+             
+        json_info = YahooStockFunctionSet._parse_json(financials_site)
+        result = {}
+        
+        df = pd.DataFrame(json_info) # json pandas 
+
+        new_dict = dict()
+        new_dict["ticker"] = ticker
+        try:
+            new_dict["companyOfficers"] = json.dumps(df["assetProfile"]["companyOfficers"])  
+        except KeyError as E:
+            new_dict["companyOfficers"] = None
+        
+        new_df = pd.DataFrame(new_dict, index=['value']).transpose()
+        new_df.replace({np.NaN: None}, inplace=True)
+
+        return new_df 
+    
+if __name__ == "__main__":
+    getter_functionset = YahooStockFunctionSet()
+    
+    # profile = getter_functionset.get_profile() 
+    print(getter_functionset.get_statistics()) 
+    print(type(getter_functionset.get_statistics()) )
+    
+    print(getter_functionset.get_profile()) 
+    print(type(getter_functionset.get_profile()) )
+    # print(profile) 

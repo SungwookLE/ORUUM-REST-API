@@ -1,7 +1,7 @@
 import pandas as pd
-from stock_info.get_tickers import GetTicker
+from stock_info.get_tickers import GetTicker # 
 from tqdm import tqdm
-from stock_info.yahoo_stocks_function_set import YahooStockFunctionSet
+from stock_info.yahoo_stocks_function_set import YahooStockFunctionSet # stock_info.
 import yahoo_fin.stock_info as yahoofin
 
 """
@@ -148,17 +148,52 @@ class YahooStockCrawler(GetTicker, YahooStockFunctionSet):
                 print(f"{ticker_str}: 리턴된 데이터프레임이 1개 이상 비어있어요.")
                 yield [None]*len(return_dataframe_list)
 
+    def get_stocks_profile(self):
+
+        tickers_df = self.tickers_df.copy().sample(frac=1)
+
+        progress_bar = tqdm(tickers_df)
+        progress_bar.set_description(f"{self.market}, stock-profile")
+
+        while (tickers_df.empty is not True):
+            maximum_number_of_stocks_loaded_at_once = 1
+            ticker_df_slice = tickers_df.iloc[0:
+                                                  maximum_number_of_stocks_loaded_at_once]
+            ticker_str = ""
+            for ticker in ticker_df_slice["symbol"]:
+                ticker_str += ticker
+
+            tickers_df.drop(ticker_df_slice.index, inplace=True)
+            dataframe_profile_data = YahooStockFunctionSet.get_profile(ticker=ticker_str)
+
+            return_dataframe_list = [dataframe_profile_data]
+
+            progress_bar.update(1)
+            
+            try:
+                for dataframe in return_dataframe_list:
+                    if dataframe.empty:
+                        raise
+                yield return_dataframe_list
+
+            except:
+                print(f"{ticker_str}: 리턴된 데이터프레임이 1개 이상 비어있어요.") 
+                yield [None]*len(return_dataframe_list)
 
 if __name__ == "__main__":
     getter_stock = YahooStockCrawler("NASDAQ")
-    print(getter_stock.get_stocks_price()[["symbol", "regularMarketPrice"]])
-    print(getter_stock.get_stocks_price_history())
+    # print(getter_stock.get_stocks_price()[["symbol","regularMarketPrice"]])
+    # print(getter_stock.get_stocks_price_history())
 
-    for yearly_income_statement, yearly_balance_sheet, yearly_cash_flow, quarterly_income_statement, quarterly_balance_sheet, quarterly_cash_flow, statistics_financial_data in getter_stock.get_stocks_information_history():
-        print(yearly_income_statement)
-        print(yearly_balance_sheet)
-        print(yearly_cash_flow)
-        print(quarterly_income_statement)
-        print(quarterly_balance_sheet)
-        print(quarterly_cash_flow)
-        print(statistics_financial_data)
+    # for yearly_income_statement, yearly_balance_sheet, yearly_cash_flow, quarterly_income_statement, quarterly_balance_sheet, quarterly_cash_flow, statistics_financial_data in getter_stock.get_stocks_information_history():
+    #     print(yearly_income_statement)
+    #     print(yearly_balance_sheet)
+    #     print(yearly_cash_flow)
+    #     print(quarterly_income_statement)
+    #     print(quarterly_balance_sheet)
+    #     print(quarterly_cash_flow)
+    #     print(statistics_financial_data)
+    
+    # print(getter_stock.get_stocks_profile())
+    for profile_data in getter_stock.get_stocks_profile():
+        print(profile_data)

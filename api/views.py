@@ -12,9 +12,8 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
-
-from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer
-from api.models import StockList, StockInformationHistory, StockPriceHistory
+from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer, StockProfileSerializer
+from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
 import re
 import datetime
@@ -251,7 +250,7 @@ class StockQuarterlyFinancialStatementsAPIView(ListAPIView):
         return_dict["operatingIncome"] = list()
         return_dict["basicEpsArray"] = list() # ttmEPS
         return_dict["dilutedEpsArray"] = list() # ttmEPS
-        
+
         for idx, item in enumerate(serializer.data):
             iter_dict = json.loads(json.dumps(item))
             tmp_dict = json.loads(iter_dict["quarterly_income_statement"])
@@ -284,3 +283,41 @@ class StockQuarterlyFinancialStatementsAPIView(ListAPIView):
             return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
 
         return Response(return_dict)
+
+
+class StockProfileAPIView(ListAPIView):
+    serializer_class = StockProfileSerializer
+
+    def get_queryset(self):
+        return StockProfile.objects.filter(ticker=self.kwargs["ticker"])
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return_dict = dict()
+        return_dict["ceoName"] = list()
+        return_dict["ceoDetailList"] = list()
+
+        for idx, item in enumerate(serializer.data):
+            iter_dict = json.loads(json.dumps(item))
+            tmp_dict = json.loads(iter_dict["company_officers"]) 
+            
+            try: 
+                return_dict["ceoName"] = tmp_dict[0]["name"]
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["ceoDetailList"] = [tmp_dict[0]["title"], tmp_dict[0]["totalPay"], tmp_dict[0]["yearBorn"], tmp_dict[0]["age"], tmp_dict[0]["fiscalYear"]]
+                # try 문 
+            except KeyError: 
+                print() 
+
+        return Response(return_dict) 
+        

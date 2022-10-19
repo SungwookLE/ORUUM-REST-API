@@ -117,5 +117,26 @@ class StockPriceHistory(models.Model):
     
     def __str__(self): 
         return str(self.ticker) + "@" + str(self.update_date)
+    
+class StockProfile(models.Model): 
+    """ 종목의 상장 이후 부터 현재까지 주가 히스토리, 히스토리 간격(interval): 1day
+    pk = "id"
+    columns = ["ticker", "company_officers", "update_dt", "create_dt"]
+    """
+
+    # id = models.BigAutoField(help_text="id_stockprofile", primary_key=True)
+    ticker = models.ForeignKey("StockList", related_name="stockprofile", on_delete=models.CASCADE, db_column = "ticker")
+    update_date = models.DateField(help_text='날짜', default=datetime.today)
+    
+    company_officers = models.JSONField(help_text="회사 경영진", blank=True, null=True) 
+
+    update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
+    create_dt = models.DateTimeField(verbose_name='create_dt', auto_now_add=True)
+
+    class Meta:
+        ordering = ['ticker', '-update_date' ]
+    
+    def __str__(self): 
+        return str(self.ticker) + "@" + str(self.update_date)
 
     

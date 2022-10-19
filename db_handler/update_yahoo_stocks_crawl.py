@@ -1,6 +1,4 @@
 #  file: db_handler/update_stocks_yahooapi.py
-from api.models import StockList, StockInformationHistory, StockPriceHistory
-from locale import currency
 import os
 import sys
 from tqdm import tqdm
@@ -15,6 +13,7 @@ from stock_info.get_yahoo_stocks import YahooStockCrawler
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.develop")
 django.setup()
+from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
 
 class UpdateStocksFromYahoo:
@@ -134,7 +133,6 @@ class UpdateStocksFromYahoo:
     def update_stocks_information_history_from_yahoo(self):
 
         for yearly_income_statement, yearly_balance_sheet, yearly_cash_flow, quarterly_income_statement, quarterly_balance_sheet, quarterly_cash_flow, statistics_financial_data in self.yf.get_stocks_information_history():
-
             try:
                 json_yearly_income_statement_data = yearly_income_statement.to_json(
                     orient='columns')
@@ -218,8 +216,35 @@ class UpdateStocksFromYahoo:
                                                            )
 
 
+    def update_stocks_profile_from_yahoo(self):
+        self.stocks_profile = self.yf.get_stocks_profile()
+
+        for profile_data in self.stocks_profile: 
+            profile_data = profile_data[0] # 데이터프레임이 아닌 리스트를 반환 
+            try:
+                dict_profile_data = profile_data["value"]
+                ticker = dict_profile_data.loc["ticker"] # .iloc[0,0] # name 
+                object_from_stocklist = StockList.objects.get(ticker=ticker)
+            
+            except:
+                print("pass...")
+
+            else:
+                try:
+                    object_from_stockprofile = StockProfile.objects.get(
+                                ticker=object_from_stocklist)
+                    object_from_stockprofile.company_officers = dict_profile_data["companyOfficers"]
+
+                except StockProfile.DoesNotExist:
+                    StockProfile.objects.create(ticker=object_from_stocklist,
+                                            company_officers=dict_profile_data["companyOfficers"],
+                                            )
+
+        return 
+
 if __name__ == "__main__":
     updater = UpdateStocksFromYahoo("NASDAQ")
-    updater.update_stockquote_from_yahoo()
-    updater.update_stocks_price_history_from_yahoo(range="max")
-    updater.update_stocks_information_history_from_yahoo()
+    # updater.update_stockquote_from_yahoo()
+    # updater.update_stocks_price_history_from_yahoo(range="max")
+    # updater.update_stocks_information_history_from_yahoo()
+    updater.update_stocks_profile_from_yahoo()
