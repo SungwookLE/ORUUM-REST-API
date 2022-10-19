@@ -13,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 
-from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer
+from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer
 from api.models import StockList, StockInformationHistory, StockPriceHistory
 
 import re
@@ -165,7 +165,7 @@ class StockSummaryAPIView(RetrieveAPIView):
         })
         
 
-class StockYearlyFinancialStatementsAPIView(ListAPIView):
+class StockYearlyFinancialStatementsAPIView(ListAPIView): #상속받는 APIView를 RetrieveAPIView로 해야할듯? (10/19, 성욱)
     serializer_class = StockYearlyFinancialStatementsSerializer
 
     def get_queryset(self):
@@ -225,3 +225,62 @@ class StockYearlyFinancialStatementsAPIView(ListAPIView):
         return Response(return_dict)
 
 # (10/19) 역할분담 get Stock quarterly financial statements - 성욱,  get Stock CEO - 민주 
+
+class StockQuarterlyFinancialStatementsAPIView(ListAPIView):
+    serializer_class = StockQuarterlyFinancialStatementsSerializer
+
+    def get_queryset(self):
+        return StockInformationHistory.objects.filter(ticker=self.kwargs["ticker"])
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return_dict = dict()
+        return_dict["dateArray"] = list()
+        return_dict["revenueArray"] = list()
+        return_dict["costOfRevenueArray"] = list()
+        return_dict["grossProfit"] = list() 
+        return_dict["operatingExpense"] = list()
+        return_dict["operatingIncome"] = list()
+        return_dict["basicEpsArray"] = list() # ttmEPS
+        return_dict["dilutedEpsArray"] = list() # ttmEPS
+        
+        for idx, item in enumerate(serializer.data):
+            iter_dict = json.loads(json.dumps(item))
+            tmp_dict = json.loads(iter_dict["quarterly_income_statement"])
+            try: 
+                tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
+                return_dict["dateArray"] = tmp_dict.keys() 
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
+            except: 
+                print() 
+            try: 
+                return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
+            except KeyError: 
+                print()
+            return_dict["basicEpsArray"].append(iter_dict["ttmEPS"])
+            return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
+
+        return Response(return_dict)

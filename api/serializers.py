@@ -33,3 +33,8 @@ class StockYearlyFinancialStatementsSerializer(serializers.ModelSerializer):
         model = StockInformationHistory
         fields = '__all__'
         
+class StockQuarterlyFinancialStatementsSerializer(serializers.ModelSerializer): 
+    class Meta: 
+        model = StockInformationHistory
+        fields = '__all__'
+        
