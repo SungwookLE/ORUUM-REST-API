@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 # ========================================
 # 카카오 소셜 로그인을 위한 세팅 환경 변수 선언
 SITE_ID = 1
-LOGIN_REDIRECT_URL = '/'  # 로그인 후 리다이렉트 될 경로
+LOGIN_REDIRECT_URL = '/accounts/userlist/'  # 로그인 후 리다이렉트 될 경로
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True  # 로그아웃 버튼 클릭 시 자동 로그아웃
 SOCIALACCOUNT_AUTO_SIGNUP = False
@@ -120,9 +120,9 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATICFILES_DIRS = []
+#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
+#STATICFILES_DIRS = [BASE_DIR / 'static',]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -132,7 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS_ORIGIN_WHITELIST: List of origins that are authorized to make cross-site HTTP requests. Defaults to [].
 CORS_ORIGIN_WHITELIST = ['http://3.37.170.52', 'http://localhost:8000']
 CORS_ORIGIN_ALLOW_ALL = True
-CSRF_TRUSTED_ORIGINS = ['http://3.37.170.52', "https://api.oruum.com"]
+CSRF_TRUSTED_ORIGINS = ['http://3.37.170.52', "https://api.oruum.com", "http://0.0.0.0:8000"]
 # ========================================
 
 # ========================================
