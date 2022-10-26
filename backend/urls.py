@@ -23,11 +23,11 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('accounts/', include('accounts.urls')),
 
+    path('accounts/', include('accounts.urls')),
     # oauth를 위한 url
     path('accounts/', include('allauth.urls')),
-
+    
     # dashboard를 위한 url
     path('dashboard/', include('dashboard.urls')),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),

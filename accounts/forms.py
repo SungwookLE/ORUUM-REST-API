@@ -5,9 +5,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from accounts.models import UserList
 
-from django.utils.translation import gettext_lazy as _
-
-
 class SignupForm(UserCreationForm):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)

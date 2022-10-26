@@ -1,8 +1,8 @@
 #  file: accounts/urls.py
 
 from django.urls import path, include, register_converter
-from rest_framework import routers
-from accounts.views import UserListListAPIView, UserListRetrieveAPIView, UserInterestListAPIView, UserPortfolioListAPIView
+from accounts.views import KakaoLogoutCallBackView, KakaoLogoutView, KakaoCallBackView, KakaoView, UserListListAPIView, UserListRetrieveAPIView, UserInterestListAPIView, UserPortfolioListAPIView
+
 
 app_name = 'accounts'
 
@@ -15,4 +15,10 @@ urlpatterns = [
          name='userinterest-list'),
     path('userportfolio/', UserPortfolioListAPIView.as_view(),
          name='userportfolio-list'),
+
+    path('kakao/', KakaoView.as_view()),
+    path('kakao/callback/', KakaoCallBackView.as_view()),
+    path('kakao/logout/', KakaoLogoutView.as_view()),
+    path('kakao/logout/callback/', KakaoLogoutCallBackView.as_view()),
+
 ]

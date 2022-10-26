@@ -2,7 +2,6 @@
 
 from pathlib import Path
 import os
-from django.urls import reverse_lazy
 
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
@@ -48,7 +47,7 @@ INSTALLED_APPS = [
 # ========================================
 # 카카오 소셜 로그인을 위한 세팅 환경 변수 선언
 SITE_ID = 1
-LOGIN_REDIRECT_URL = '/accounts/userlist/'  # 로그인 후 리다이렉트 될 경로
+LOGIN_REDIRECT_URL = 'home'  # 로그인 후 리다이렉트 될 경로
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True  # 로그아웃 버튼 클릭 시 자동 로그아웃
 SOCIALACCOUNT_AUTO_SIGNUP = False
