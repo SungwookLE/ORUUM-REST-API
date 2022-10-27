@@ -1,7 +1,7 @@
 #  file: api/admin.py
 from django.contrib import admin
 
-from api.models import StockList, StockInformationHistory, StockPriceHistory
+from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
 
 @admin.register(StockList)
@@ -19,3 +19,7 @@ class StockInformationHistoryAdmin(admin.ModelAdmin):
 class StockPriceHistoryAdmin(admin.ModelAdmin):
     search_fields = ['ticker']
     date_hierarchy = 'update_date'
+
+@admin.register(StockProfile)
+class StockProfileAdmin(admin.ModelAdmin):
+    search_fields = ['ticker']

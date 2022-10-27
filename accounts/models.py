@@ -80,5 +80,11 @@ class UserPortfolio(models.Model):
 
 class UserWallet(models.Model):
     id_user = models.OneToOneField(UserList, related_name="userwallet", on_delete=models.CASCADE, db_column="id_user", primary_key=True)
+    deposit = models.FloatField(help_text="deposit dollar", blank=True, null=True)
 
+    update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
+    create_dt = models.DateTimeField(
+        verbose_name='create_dt', auto_now_add=True)
 
+    def __str__(self):
+        return str(self.id_user)

@@ -125,7 +125,7 @@ class UserInformationView(RetrieveAPIView):
             "interest_koreanStock": interest_koreanStock_list,
             "portfolio_usStock": portfolio_usStock_list,
             "interest_usStock": interest_usStock_list,
-            "deposit": 0 #(10/27) 디포짓 관련하여 모델에 칼럼 추가하여야함
+            "deposit": obj.userwallet.deposit 
         })
 
 
