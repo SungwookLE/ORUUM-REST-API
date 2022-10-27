@@ -1,6 +1,4 @@
 #  file: db_handler/update_stocks_yahooapi.py
-
-from api.models import StockList, StockInformationHistory, StockPriceHistory
 import FinanceDataReader as fdr
 import os
 import sys
@@ -12,6 +10,7 @@ from tqdm import tqdm
 import dbModule
 import datetime
 import re
+from api.models import StockList, StockInformationHistory, StockPriceHistory
 
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))

@@ -164,13 +164,13 @@ class StockSummaryAPIView(RetrieveAPIView):
         })
         
 
-class StockYearlyFinancialStatementsAPIView(ListAPIView): #상속받는 APIView를 RetrieveAPIView로 해야할듯? (10/19, 성욱)
+class StockYearlyFinancialStatementsAPIView(RetrieveAPIView): 
     serializer_class = StockYearlyFinancialStatementsSerializer
 
     def get_queryset(self):
         return StockInformationHistory.objects.filter(ticker=self.kwargs["ticker"])
 
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -231,7 +231,7 @@ class StockQuarterlyFinancialStatementsAPIView(ListAPIView):
     def get_queryset(self):
         return StockInformationHistory.objects.filter(ticker=self.kwargs["ticker"])
 
-    def list(self, request, *args, **kwargs):
+    def List(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -285,13 +285,13 @@ class StockQuarterlyFinancialStatementsAPIView(ListAPIView):
         return Response(return_dict)
 
 
-class StockProfileAPIView(ListAPIView):
+class StockProfileAPIView(RetrieveAPIView):
     serializer_class = StockProfileSerializer
 
     def get_queryset(self):
         return StockProfile.objects.filter(ticker=self.kwargs["ticker"])
 
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -303,21 +303,43 @@ class StockProfileAPIView(ListAPIView):
 
         return_dict = dict()
         return_dict["ceoName"] = list()
-        return_dict["ceoDetailList"] = list()
+        return_dict["title"] = list()
+        return_dict["pay"] = list()
+        return_dict["age"] = list()
+        return_dict["detailList"] = list()
 
-        for idx, item in enumerate(serializer.data):
+        for idx, item in enumerate(serializer.data): # CEO가 여러명인 경우 있으므로, ListAPIView 로 구현해야하는가 ? 
             iter_dict = json.loads(json.dumps(item))
             tmp_dict = json.loads(iter_dict["company_officers"]) 
+            ceo_idx = []
             
+            for idx in range(len(tmp_dict)): 
+                if "CEO" in tmp_dict[idx]["title"]: ceo_idx.append(idx) 
+                
             try: 
-                return_dict["ceoName"] = tmp_dict[0]["name"]
+                return_dict["ceoName"] = [tmp_dict[idx]["name"] for idx in ceo_idx]
             except KeyError: 
                 print() 
-            try: 
-                return_dict["ceoDetailList"] = [tmp_dict[0]["title"], tmp_dict[0]["totalPay"], tmp_dict[0]["yearBorn"], tmp_dict[0]["age"], tmp_dict[0]["fiscalYear"]]
-                # try 문 
-            except KeyError: 
-                print() 
+            for idx in ceo_idx: 
+                try:
+                    return_dict["title"].append(tmp_dict[idx]["title"])
+                except KeyError: 
+                    return_dict["title"].append(None)
+            for idx in ceo_idx: 
+                try:
+                    return_dict["pay"].append(tmp_dict[idx]["totalPay"])
+                except KeyError: 
+                    return_dict["pay"].append(None)
+            for idx in ceo_idx: 
+                try:
+                    return_dict["age"].append(tmp_dict[idx]["age"])
+                except KeyError: 
+                    return_dict["age"].append(None)
+            for idx in ceo_idx: 
+                try:
+                    return_dict["detailList"].append(tmp_dict[idx]["detailList"])
+                except KeyError: 
+                    return_dict["detailList"].append(list())
 
         return Response(return_dict) 
-        
+
