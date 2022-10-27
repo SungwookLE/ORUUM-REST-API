@@ -16,6 +16,7 @@ from accounts.models import UserList, UserInterest, UserPortfolio
 from rest_framework.views import View
 
 from django.contrib import auth
+import re
 
 
 import os
@@ -75,16 +76,59 @@ class KakaoCallBackView(View):
             UserList.objects.create(id=self.user_information["id"], email=self.user_information["kakao_account"]["email"], first_name=self.user_information["kakao_account"]["profile"]["nickname"], last_name=self.user_information["kakao_account"]["profile"]["nickname"], username=self.user_information["kakao_account"]["profile"]["nickname"])
             user = UserList.objects.get(id=self.user_information["id"])
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        except IntegrityError:
-            print("기가입자")
-            auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-
+       
         return
 
 class KakaoLogoutCallBackView(View):
     def get(self, request):
         auth.logout(request)
         return redirect('home')
+
+class UserInformationView(RetrieveAPIView):
+    queryset = UserList.objects.prefetch_related()
+    lookup_field="id"
+
+    def get(self, request, id, token):
+        obj = self.get_object()
+        
+        portfolio_koreanStock_list = list()
+        portfolio_usStock_list = list()
+        for iter_obj in obj.userportfolio.all():
+            portfolio_koreanStock_dict = dict()
+            portfolio_usStock_dict = dict()
+
+            if re.search(r".KS$",str(iter_obj.ticker)):
+                portfolio_koreanStock_dict["ticker"] = str(iter_obj.ticker)
+                portfolio_koreanStock_dict["number"] = str(iter_obj.number_stock)
+                portfolio_koreanStock_list.append(portfolio_koreanStock_dict)
+            else:
+                portfolio_usStock_dict["ticker"] = [str(iter_obj.ticker)]
+                portfolio_usStock_dict["number"] = str(iter_obj.number_stock)
+                portfolio_usStock_list.append(portfolio_usStock_dict)
+
+        
+        interest_koreanStock_list = list()
+        interest_usStock_list = list()
+        for iter_obj in obj.userinterest.all():
+            interest_koreanStock_dict = dict()
+            interest_usStock_dict = dict()
+            if re.search(r".KS$",str(iter_obj.ticker)):
+                interest_koreanStock_dict["ticker"]= [str(iter_obj.ticker)] 
+                interest_koreanStock_list.append(interest_koreanStock_dict)
+            else:
+                interest_usStock_dict["ticker"] = [str(iter_obj.ticker)] 
+                interest_usStock_list.append(interest_usStock_dict)
+
+        return Response({
+            "firstName": obj.first_name,
+            "lastName": obj.last_name,
+            "portfolio_koreanStock": portfolio_koreanStock_list, 
+            "interest_koreanStock": interest_koreanStock_list,
+            "portfolio_usStock": portfolio_usStock_list,
+            "interest_usStock": interest_usStock_list,
+            "deposit": 0 #(10/27) 디포짓 관련하여 모델에 칼럼 추가하여야함
+        })
+
 
 class UserListListAPIView(ListAPIView):
     queryset = UserList.objects.all()

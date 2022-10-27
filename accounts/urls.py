@@ -2,7 +2,7 @@
 
 from django.urls import path, include, register_converter
 from accounts.views import KakaoLogoutCallBackView, KakaoLogoutView, KakaoCallBackView, KakaoView, UserListListAPIView, UserListRetrieveAPIView, UserInterestListAPIView, UserPortfolioListAPIView
-
+from accounts.views import UserInformationView
 
 app_name = 'accounts'
 
@@ -20,5 +20,9 @@ urlpatterns = [
     path('kakao/callback/', KakaoCallBackView.as_view()),
     path('kakao/logout/', KakaoLogoutView.as_view()),
     path('kakao/logout/callback/', KakaoLogoutCallBackView.as_view()),
+
+    path('userinformation/<str:id>/<str:token>/', 
+          UserInformationView.as_view(), name='userinformation-detail'),
+
 
 ]
