@@ -75,3 +75,10 @@ class UserPortfolio(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+
+
+class UserWallet(models.Model):
+    id_user = models.OneToOneField(UserList, related_name="userwallet", on_delete=models.CASCADE, db_column="id_user", primary_key=True)
+
+

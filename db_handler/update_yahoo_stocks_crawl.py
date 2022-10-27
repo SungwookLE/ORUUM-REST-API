@@ -1,5 +1,4 @@
 #  file: db_handler/update_stocks_yahooapi.py
-from locale import currency
 import os
 import sys
 from tqdm import tqdm
@@ -14,7 +13,7 @@ from stock_info.get_yahoo_stocks import YahooStockCrawler
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.develop")
 django.setup()
-from api.models import StockList, StockInformationHistory, StockPriceHistory
+from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
 
 class UpdateStocksFromYahoo:
@@ -30,10 +29,10 @@ class UpdateStocksFromYahoo:
     def get_value_from_dict(dataframe, key, value_type):
         if value_type == 'str':
             # nan check를 위해 x!=x 의 조건문 사용하여, nan인 경우 true 리턴
-            value = (lambda x: "" if x!=x else x)(dataframe.get(key))
+            value = (lambda x: "" if x != x else x)(dataframe.get(key))
             ret = re.sub(r"[^a-zA-Z0-9가-힣]", "", value)
         else:
-            value = (lambda x: 0 if x!=x else x)(dataframe.get(key))
+            value = (lambda x: 0 if x != x else x)(dataframe.get(key))
             ret = value
         return ret
 
@@ -50,82 +49,104 @@ class UpdateStocksFromYahoo:
         for yFinance_idx, yFinance_value in self.stocks_price_now.iterrows():
             try:
                 object_from_stocklist = StockList.objects.get(
-                            ticker=yFinance_value["symbol"])
+                    ticker=yFinance_value["symbol"])
                 object_from_stocklist.update_date = datetime.date.today()
                 object_from_stocklist.price = UpdateStocksFromYahoo.get_value_from_dict(
-                            yFinance_value, "regularMarketPrice", 'float')
+                    yFinance_value, "regularMarketPrice", 'float')
                 object_from_stocklist.price_open = UpdateStocksFromYahoo.get_value_from_dict(
-                            yFinance_value, "regularMarketOpen", 'float')
+                    yFinance_value, "regularMarketOpen", 'float')
                 object_from_stocklist.price_high = UpdateStocksFromYahoo.get_value_from_dict(
-                            yFinance_value, "regularMarketDayHigh", 'float')
+                    yFinance_value, "regularMarketDayHigh", 'float')
                 object_from_stocklist.price_low = UpdateStocksFromYahoo.get_value_from_dict(
-                            yFinance_value, "regularMarketDayLow", 'float')
+                    yFinance_value, "regularMarketDayLow", 'float')
                 object_from_stocklist.prevclose = UpdateStocksFromYahoo.get_value_from_dict(
-                            yFinance_value, "regularMarketPreviousClose", 'float')
+                    yFinance_value, "regularMarketPreviousClose", 'float')
                 object_from_stocklist.volume = UpdateStocksFromYahoo.get_value_from_dict(
-                            yFinance_value, "regularMarketVolume", 'float')
+                    yFinance_value, "regularMarketVolume", 'float')
 
                 object_from_stocklist.save()
 
             except StockList.DoesNotExist:
                 maximum_length_of_name = 50
                 StockList.objects.create(ticker=yFinance_value["symbol"],
-                                         update_date=datetime.date.today(), 
-                                         name_english=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "displayName", 'str')[0:maximum_length_of_name],
-                                         name_korea=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "longName", 'str')[0:maximum_length_of_name],
-                                         market=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "fullExchangeName", 'str'), 
-                                         price=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "regularMarketPrice", 'float'), 
-                                         price_open=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "regularMarketOpen", 'float'), 
-                                         price_high=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "regularMarketDayHigh", 'float'), 
-                                         price_low=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "regularMarketDayLow", 'float'), 
-                                         prevclose=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "regularMarketPreviousClose", 'float'), 
-                                         volume=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "regularMarketVolume", 'float'),
-                                         currency=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "currency", 'str')
+                                         update_date=datetime.date.today(),
+                                         name_english=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "displayName", 'str')[0:maximum_length_of_name],
+                                         name_korea=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "longName", 'str')[0:maximum_length_of_name],
+                                         market=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "fullExchangeName", 'str'),
+                                         price=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "regularMarketPrice", 'float'),
+                                         price_open=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "regularMarketOpen", 'float'),
+                                         price_high=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "regularMarketDayHigh", 'float'),
+                                         price_low=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "regularMarketDayLow", 'float'),
+                                         prevclose=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "regularMarketPreviousClose", 'float'),
+                                         volume=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "regularMarketVolume", 'float'),
+                                         currency=UpdateStocksFromYahoo.get_value_from_dict(
+                                             yFinance_value, "currency", 'str')
                                          )
-            
+
             progress_bar.update(1)
 
         return
 
     def update_stocks_price_history_from_yahoo(self, range="max"):
         #주식 가격 히스토리
-        self.stocks_price_history = self.yf.get_stocks_price_history(range=range)
+        self.stocks_price_history = self.yf.get_stocks_price_history(
+            range=range)
 
         progress_bar = tqdm(self.stocks_price_history)
         progress_bar.set_description("StockPriceHistory Database Update")
 
         for yFinance_idx, yFinance_value in self.stocks_price_history.iterrows():
-            object_from_stocklist = StockList.objects.get(ticker=yFinance_value["ticker"])
+            object_from_stocklist = StockList.objects.get(
+                ticker=yFinance_value["ticker"])
             try:
                 object_from_stockpricehistory = StockPriceHistory.objects.filter(
-                            ticker=object_from_stocklist).get(update_date=yFinance_value["date"])
+                    ticker=object_from_stocklist).get(update_date=yFinance_value["date"])
 
             except StockPriceHistory.DoesNotExist:
                 StockPriceHistory.objects.create(ticker=object_from_stocklist,
-                                         update_date=yFinance_value["date"], 
-                                         price_open=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "open", 'float'),
-                                         price_high=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "high", 'float'),
-                                         price_low=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "low", 'float'), 
-                                         price_close=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "close", 'float'), 
-                                         volume=UpdateStocksFromYahoo.get_value_from_dict(yFinance_value, "volume", 'float'), 
-                                         )
-            
+                                                 update_date=yFinance_value["date"],
+                                                 price_open=UpdateStocksFromYahoo.get_value_from_dict(
+                                                     yFinance_value, "open", 'float'),
+                                                 price_high=UpdateStocksFromYahoo.get_value_from_dict(
+                                                     yFinance_value, "high", 'float'),
+                                                 price_low=UpdateStocksFromYahoo.get_value_from_dict(
+                                                     yFinance_value, "low", 'float'),
+                                                 price_close=UpdateStocksFromYahoo.get_value_from_dict(
+                                                     yFinance_value, "close", 'float'),
+                                                 volume=UpdateStocksFromYahoo.get_value_from_dict(
+                                                     yFinance_value, "volume", 'float'),
+                                                 )
+
             progress_bar.update(1)
 
         return
 
     def update_stocks_information_history_from_yahoo(self):
-        
+
         for yearly_income_statement, yearly_balance_sheet, yearly_cash_flow, quarterly_income_statement, quarterly_balance_sheet, quarterly_cash_flow, statistics_financial_data in self.yf.get_stocks_information_history():
-            
             try:
-                json_yearly_income_statement_data = yearly_income_statement.to_json(orient = 'columns')
-                json_yearly_balance_sheet_data = yearly_balance_sheet.to_json(orient = 'columns')
-                json_yearly_cash_flow_data = yearly_cash_flow.to_json(orient = 'columns')
-                
-                json_quarterly_income_statement_data = quarterly_income_statement.to_json(orient = 'columns')
-                json_quarterly_balance_sheet_data = quarterly_balance_sheet.to_json(orient = 'columns')
-                json_quarterly_cash_flow_data = quarterly_cash_flow.to_json(orient = 'columns')
+                json_yearly_income_statement_data = yearly_income_statement.to_json(
+                    orient='columns')
+                json_yearly_balance_sheet_data = yearly_balance_sheet.to_json(
+                    orient='columns')
+                json_yearly_cash_flow_data = yearly_cash_flow.to_json(
+                    orient='columns')
+
+                json_quarterly_income_statement_data = quarterly_income_statement.to_json(
+                    orient='columns')
+                json_quarterly_balance_sheet_data = quarterly_balance_sheet.to_json(
+                    orient='columns')
+                json_quarterly_cash_flow_data = quarterly_cash_flow.to_json(
+                    orient='columns')
 
                 dict_statistics_financial_data = statistics_financial_data["value"]
                 print(dict_statistics_financial_data)
@@ -133,14 +154,14 @@ class UpdateStocksFromYahoo:
                 ticker = yearly_income_statement.index.name
 
                 object_from_stocklist = StockList.objects.get(ticker=ticker)
-            
+
             except:
                 print("pass...")
 
             else:
                 try:
                     object_from_stockinformationhistory = StockInformationHistory.objects.get(
-                                ticker=object_from_stocklist)
+                        ticker=object_from_stocklist)
                     object_from_stockinformationhistory.yearly_income_statement = json_yearly_income_statement_data
                     object_from_stockinformationhistory.yearly_balance_sheet = json_yearly_balance_sheet_data
                     object_from_stockinformationhistory.yearly_cash_flow = json_yearly_cash_flow_data
@@ -148,42 +169,82 @@ class UpdateStocksFromYahoo:
                     object_from_stockinformationhistory.quarterly_balance_sheet = json_quarterly_balance_sheet_data
                     object_from_stockinformationhistory.quarterly_cash_flow = json_quarterly_cash_flow_data
 
-                    object_from_stockinformationhistory.ttmPER = dict_statistics_financial_data["ttmPER"]
-                    object_from_stockinformationhistory.ttmPSR = dict_statistics_financial_data["ttmPSR"]
-                    object_from_stockinformationhistory.ttmPBR = dict_statistics_financial_data["ttmPBR"]
-                    object_from_stockinformationhistory.ttmPEGR = dict_statistics_financial_data["ttmPEGR"]
-                    object_from_stockinformationhistory.ttmEPS = dict_statistics_financial_data["ttmEPS"]
-                    object_from_stockinformationhistory.forwardPER = dict_statistics_financial_data["forwardPER"]
-                    object_from_stockinformationhistory.forwardPSR = dict_statistics_financial_data["forwardPSR"]
-                    object_from_stockinformationhistory.forwardEPS = dict_statistics_financial_data["forwardEPS"]
-                    object_from_stockinformationhistory.marketCap = dict_statistics_financial_data["marketCap"]
-                    object_from_stockinformationhistory.fiftytwoweek_high  = dict_statistics_financial_data["fiftytwoweek_high"]
-                    object_from_stockinformationhistory.fiftytwoweek_low  = dict_statistics_financial_data["fiftytwoweek_low"]
+                    object_from_stockinformationhistory.ttmPER = dict_statistics_financial_data[
+                        "ttmPER"]
+                    object_from_stockinformationhistory.ttmPSR = dict_statistics_financial_data[
+                        "ttmPSR"]
+                    object_from_stockinformationhistory.ttmPBR = dict_statistics_financial_data[
+                        "ttmPBR"]
+                    object_from_stockinformationhistory.ttmPEGR = dict_statistics_financial_data[
+                        "ttmPEGR"]
+                    object_from_stockinformationhistory.ttmEPS = dict_statistics_financial_data[
+                        "ttmEPS"]
+                    object_from_stockinformationhistory.forwardPER = dict_statistics_financial_data[
+                        "forwardPER"]
+                    object_from_stockinformationhistory.forwardPSR = dict_statistics_financial_data[
+                        "forwardPSR"]
+                    object_from_stockinformationhistory.forwardEPS = dict_statistics_financial_data[
+                        "forwardEPS"]
+                    object_from_stockinformationhistory.marketCap = dict_statistics_financial_data[
+                        "marketCap"]
+                    object_from_stockinformationhistory.fiftytwoweek_high = dict_statistics_financial_data[
+                        "fiftytwoweek_high"]
+                    object_from_stockinformationhistory.fiftytwoweek_low = dict_statistics_financial_data[
+                        "fiftytwoweek_low"]
 
-                    
                 except StockInformationHistory.DoesNotExist:
                     StockInformationHistory.objects.create(ticker=object_from_stocklist,
-                                            yearly_income_statement=json_yearly_income_statement_data,
-                                            yearly_balance_sheet=json_yearly_balance_sheet_data,
-                                            yearly_cash_flow=json_yearly_cash_flow_data, 
-                                            quarterly_income_statement=json_quarterly_income_statement_data, 
-                                            quarterly_balance_sheet=json_quarterly_balance_sheet_data, 
-                                            quarterly_cash_flow=json_quarterly_cash_flow_data,
-                                            ttmPER = dict_statistics_financial_data["ttmPER"],
-                                            ttmPSR = dict_statistics_financial_data["ttmPSR"],
-                                            ttmPBR = dict_statistics_financial_data["ttmPBR"],
-                                            ttmPEGR = dict_statistics_financial_data["ttmPEGR"],
-                                            ttmEPS = dict_statistics_financial_data["ttmEPS"],
-                                            forwardPER = dict_statistics_financial_data["forwardPER"],
-                                            forwardPSR = dict_statistics_financial_data["forwardPSR"],
-                                            forwardEPS = dict_statistics_financial_data["forwardEPS"],
-                                            marketCap = dict_statistics_financial_data["marketCap"],
-                                            fiftytwoweek_high  = dict_statistics_financial_data["fiftytwoweek_high"],
-                                            fiftytwoweek_low  = dict_statistics_financial_data["fiftytwoweek_low"]
+                                                           yearly_income_statement=json_yearly_income_statement_data,
+                                                           yearly_balance_sheet=json_yearly_balance_sheet_data,
+                                                           yearly_cash_flow=json_yearly_cash_flow_data,
+                                                           quarterly_income_statement=json_quarterly_income_statement_data,
+                                                           quarterly_balance_sheet=json_quarterly_balance_sheet_data,
+                                                           quarterly_cash_flow=json_quarterly_cash_flow_data,
+                                                           ttmPER=dict_statistics_financial_data["ttmPER"],
+                                                           ttmPSR=dict_statistics_financial_data["ttmPSR"],
+                                                           ttmPBR=dict_statistics_financial_data["ttmPBR"],
+                                                           ttmPEGR=dict_statistics_financial_data["ttmPEGR"],
+                                                           ttmEPS=dict_statistics_financial_data["ttmEPS"],
+                                                           forwardPER=dict_statistics_financial_data["forwardPER"],
+                                                           forwardPSR=dict_statistics_financial_data["forwardPSR"],
+                                                           forwardEPS=dict_statistics_financial_data["forwardEPS"],
+                                                           marketCap=dict_statistics_financial_data["marketCap"],
+                                                           fiftytwoweek_high=dict_statistics_financial_data[
+                                                               "fiftytwoweek_high"],
+                                                           fiftytwoweek_low=dict_statistics_financial_data[
+                                                               "fiftytwoweek_low"]
+                                                           )
+
+
+    def update_stocks_profile_from_yahoo(self):
+        self.stocks_profile = self.yf.get_stocks_profile()
+
+        for profile_data in self.stocks_profile: 
+            profile_data = profile_data[0] # 데이터프레임이 아닌 리스트를 반환 
+            try:
+                dict_profile_data = profile_data["value"]
+                ticker = dict_profile_data.loc["ticker"] # .iloc[0,0] # name 
+                object_from_stocklist = StockList.objects.get(ticker=ticker)
+            
+            except:
+                print("pass...")
+
+            else:
+                try:
+                    object_from_stockprofile = StockProfile.objects.get(
+                                ticker=object_from_stocklist)
+                    object_from_stockprofile.company_officers = dict_profile_data["companyOfficers"]
+
+                except StockProfile.DoesNotExist:
+                    StockProfile.objects.create(ticker=object_from_stocklist,
+                                            company_officers=dict_profile_data["companyOfficers"],
                                             )
+
+        return 
 
 if __name__ == "__main__":
     updater = UpdateStocksFromYahoo("NASDAQ")
-    updater.update_stockquote_from_yahoo()
-    updater.update_stocks_price_history_from_yahoo(range="max")
-    updater.update_stocks_information_history_from_yahoo()
+    # updater.update_stockquote_from_yahoo()
+    # updater.update_stocks_price_history_from_yahoo(range="max")
+    # updater.update_stocks_information_history_from_yahoo()
+    updater.update_stocks_profile_from_yahoo()

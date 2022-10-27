@@ -13,6 +13,7 @@
 
 <body>
     {% load socialaccount %}
+    {% load static %}
     <nav class="navbar navbar-expand-lg bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">ORUUM</a>
@@ -60,8 +61,7 @@
                         </ul>
                     </li>
                 </ul>
-                <a href="{% provider_login_url 'kakao' method='oauth2'%}"><button class="btn btn-outline-success">카카오톡
-                        회원가입</button></a>
+                <a href="{% provider_login_url 'kakao' method='oauth2'%}"><button class="btn"><img class="btn-img" src="{% static 'kakao_login_medium_narrow.png'%}" alt=""></button></a>
             </div>
         </div>
     </nav>

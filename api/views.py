@@ -12,9 +12,8 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
-
-from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer
-from api.models import StockList, StockInformationHistory, StockPriceHistory
+from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer, StockProfileSerializer
+from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
 import re
 import datetime
@@ -146,7 +145,7 @@ class StockSummaryAPIView(RetrieveAPIView):
             'ticker': obj.ticker,
             'koreanName': obj.name_korea,
             'englishName': obj.name_english,
-            'tagList': list(), # (10/12) 추후에, staff가 직접 입력하던지 또는, 기사 분석해서 자동으로 tag 정보 넣어줄것인지 구현해서 채우기, 성욱
+            'tagList': list(),
             'priceUnit': priceUnit,
             'currentPrice': f"{obj.price:.2f}",
             'dailyChange': f"{obj.price-obj.price_open:.2f}",
@@ -165,13 +164,13 @@ class StockSummaryAPIView(RetrieveAPIView):
         })
         
 
-class StockYearlyFinancialStatementsAPIView(ListAPIView):
+class StockYearlyFinancialStatementsAPIView(RetrieveAPIView): 
     serializer_class = StockYearlyFinancialStatementsSerializer
 
     def get_queryset(self):
         return StockInformationHistory.objects.filter(ticker=self.kwargs["ticker"])
 
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -197,15 +196,150 @@ class StockYearlyFinancialStatementsAPIView(ListAPIView):
             try: 
                 tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
                 return_dict["dateArray"] = tmp_dict.keys() 
+            except KeyError: 
+                print() 
+            try: 
                 return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
+            except KeyError: 
+                print() 
+            try: 
                 return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
+            except KeyError: 
+                print() 
+            try: 
                 return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
+            except KeyError: 
+                print() 
+            try: 
                 return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
+            except: 
+                print() 
+            try: 
                 return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
             except KeyError: 
                 print()
-            # return_dict["basicEpsArray"].append(iter_dict["volume"])
-            # return_dict["dilutedEpsArray"].append(iter_dict["volume"])
+            return_dict["basicEpsArray"].append(iter_dict["ttmEPS"])
+            return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
 
         return Response(return_dict)
+
+# (10/19) 역할분담 get Stock quarterly financial statements - 성욱,  get Stock CEO - 민주 
+
+class StockQuarterlyFinancialStatementsAPIView(ListAPIView):
+    serializer_class = StockQuarterlyFinancialStatementsSerializer
+
+    def get_queryset(self):
+        return StockInformationHistory.objects.filter(ticker=self.kwargs["ticker"])
+
+    def List(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return_dict = dict()
+        return_dict["dateArray"] = list()
+        return_dict["revenueArray"] = list()
+        return_dict["costOfRevenueArray"] = list()
+        return_dict["grossProfit"] = list() 
+        return_dict["operatingExpense"] = list()
+        return_dict["operatingIncome"] = list()
+        return_dict["basicEpsArray"] = list() # ttmEPS
+        return_dict["dilutedEpsArray"] = list() # ttmEPS
+
+        for idx, item in enumerate(serializer.data):
+            iter_dict = json.loads(json.dumps(item))
+            tmp_dict = json.loads(iter_dict["quarterly_income_statement"])
+            try: 
+                tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
+                return_dict["dateArray"] = tmp_dict.keys() 
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
+            except KeyError: 
+                print() 
+            try: 
+                return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
+            except: 
+                print() 
+            try: 
+                return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
+            except KeyError: 
+                print()
+            return_dict["basicEpsArray"].append(iter_dict["ttmEPS"])
+            return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
+
+        return Response(return_dict)
+
+
+class StockProfileAPIView(RetrieveAPIView):
+    serializer_class = StockProfileSerializer
+
+    def get_queryset(self):
+        return StockProfile.objects.filter(ticker=self.kwargs["ticker"])
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return_dict = dict()
+        return_dict["ceoName"] = list()
+        return_dict["title"] = list()
+        return_dict["pay"] = list()
+        return_dict["age"] = list()
+        return_dict["detailList"] = list()
+
+        for idx, item in enumerate(serializer.data): # CEO가 여러명인 경우 있으므로, ListAPIView 로 구현해야하는가 ? 
+            iter_dict = json.loads(json.dumps(item))
+            tmp_dict = json.loads(iter_dict["company_officers"]) 
+            ceo_idx = []
+            
+            for idx in range(len(tmp_dict)): 
+                if "CEO" in tmp_dict[idx]["title"]: ceo_idx.append(idx) 
+                
+            try: 
+                return_dict["ceoName"] = [tmp_dict[idx]["name"] for idx in ceo_idx]
+            except KeyError: 
+                print() 
+            for idx in ceo_idx: 
+                try:
+                    return_dict["title"].append(tmp_dict[idx]["title"])
+                except KeyError: 
+                    return_dict["title"].append(None)
+            for idx in ceo_idx: 
+                try:
+                    return_dict["pay"].append(tmp_dict[idx]["totalPay"])
+                except KeyError: 
+                    return_dict["pay"].append(None)
+            for idx in ceo_idx: 
+                try:
+                    return_dict["age"].append(tmp_dict[idx]["age"])
+                except KeyError: 
+                    return_dict["age"].append(None)
+            for idx in ceo_idx: 
+                try:
+                    return_dict["detailList"].append(tmp_dict[idx]["detailList"])
+                except KeyError: 
+                    return_dict["detailList"].append(list())
+
+        return Response(return_dict) 
 

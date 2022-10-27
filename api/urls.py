@@ -4,10 +4,10 @@ from django.urls import path, include, register_converter
 from rest_framework import routers
 from api.converters import DateConverter
 
-from api.views import StockListListAPIView, StockListRetrieveAPIView, StockYearlyFinancialStatementsAPIView
+from api.views import StockListListAPIView, StockListRetrieveAPIView, StockYearlyFinancialStatementsAPIView, StockQuarterlyFinancialStatementsAPIView
 from api.views import StockInformationHistoryListAPIView, StockInformationHistoryRetrieveAPIView, StockInformationSparkListAPIView
 from api.views import StockPriceHistoryListAPIView, StockPriceHistoryRetrieveAPIView, StockPriceSparkListAPIView
-from api.views import HistoricalStockPriceAPIView, StockSummaryAPIView
+from api.views import HistoricalStockPriceAPIView, StockSummaryAPIView, StockProfileAPIView
 
 
 app_name = 'api'
@@ -44,5 +44,14 @@ urlpatterns = [
     
     # (10/03->10/12: 민주) API 요구사항 반영을 위한 신규 REST url 생성3
     path('stockyearlyfinancialstatements/<str:ticker>/',  
-          StockYearlyFinancialStatementsAPIView.as_view(), name='stockyearlyfinancialstatements-list')
+          StockYearlyFinancialStatementsAPIView.as_view(), name='stockyearlyfinancialstatements-detail'),
+
+
+    # (10/19: 성욱) API 요구사항 반영을 위한 신규 REST url 생성4
+    path('stockquarterlyfinancialstatements/<str:ticker>/',  
+          StockQuarterlyFinancialStatementsAPIView.as_view(), name='stockquarterlyfinancialstatements-detail'),
+
+    # (10/19: 민주) API 요구사항 반영을 위한 신규 REST url 생성4
+    path('stockprofile/<str:ticker>/',  
+          StockProfileAPIView.as_view(), name='stockprofile-detail'), 
 ]
