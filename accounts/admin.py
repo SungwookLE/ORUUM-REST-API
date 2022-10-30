@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin
 
 @admin.register(UserList)
 class UserListAdmin(UserAdmin):
-    pass
+    list_display = [ 'id', 'is_staff', 'nickname', 'email','last_login']
 
 
 @admin.register(UserInterest)

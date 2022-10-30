@@ -54,6 +54,10 @@ SOCIALACCOUNT_AUTO_SIGNUP = False
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 # ========================================
 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [

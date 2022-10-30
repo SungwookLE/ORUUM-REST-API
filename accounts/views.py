@@ -1,9 +1,6 @@
 #  file: accounts/views.py
 
-from cgitb import lookup
 from django.http import JsonResponse
-from django.shortcuts import render
-from django.db.utils import IntegrityError
 from rest_framework.response import Response
 import requests  
 
@@ -17,7 +14,6 @@ from rest_framework.views import View
 
 from django.contrib import auth
 import re
-
 
 import os
 import json
@@ -35,18 +31,10 @@ class UserPageNumberPagination(PageNumberPagination):
 
 class KakaoView(View):
     def get(self, request):
-        kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code&prompt=login"
+        kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
         redirect_uri = "http://0.0.0.0:8000/accounts/kakao/callback/"
         client_id = secrets["KAKAO_REST_API_KEY"]
         return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
-
-class KakaoLogoutView(View):
-    def get(self, request):
-        kakao_api = "https://kauth.kakao.com/oauth/logout?"
-        client_id = secrets["KAKAO_REST_API_KEY"]
-        logout_redirect_uri = "http://0.0.0.0:8000/accounts/kakao/logout/callback/"
-        return redirect(f"{kakao_api}&client_id={client_id}&logout_redirect_uri={logout_redirect_uri}")
-
 
 class KakaoCallBackView(View):
     def get(self, request):
@@ -56,32 +44,39 @@ class KakaoCallBackView(View):
             "redirect_uri": "http://0.0.0.0:8000/accounts/kakao/callback/", 
             "code"      : request.GET["code"]
         }
+
         kakao_token_api = "https://kauth.kakao.com/oauth/token"
-        access_token = requests.post(kakao_token_api, data=data).json()["access_token"]
+        self.access_token = requests.post(kakao_token_api, data=data).json()["access_token"]
 
         kakako_user_api = "https://kapi.kakao.com/v2/user/me"
-        header          = {"Authorization": f"Bearer ${access_token}"}
+        header          = {"Authorization": f"Bearer ${self.access_token}"}
         self.user_information = requests.get(kakako_user_api, headers=header).json()
 
         self.kakao_signup_login(request)
 
-        return JsonResponse({"token": access_token, "user_information":self.user_information})
+        return JsonResponse({"access_token": self.access_token, "user_information":self.user_information})
 
     def kakao_signup_login(self, request):
         try:
             user = UserList.objects.get(id=self.user_information["id"])
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         except UserList.DoesNotExist:
-            UserList.objects.create(id=self.user_information["id"], email=self.user_information["kakao_account"]["email"], first_name=self.user_information["kakao_account"]["profile"]["nickname"], last_name=self.user_information["kakao_account"]["profile"]["nickname"], username=self.user_information["kakao_account"]["profile"]["nickname"])
+            UserList.objects.create(id=self.user_information["id"], email=self.user_information["kakao_account"]["email"], nickname=self.user_information["kakao_account"]["profile"]["nickname"], thumbnail_image=self.user_information["kakao_account"]["profile"]["thumbnail_image_url"])
             user = UserList.objects.get(id=self.user_information["id"])
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-       
+        
         return
 
-class KakaoLogoutCallBackView(View):
-    def get(self, request):
+class KakaoLogoutView(View):
+    def get(self, request, access_token):
+
+        # (10/30) 장고 앱에서 발급한 JWT를 비교하여, 어떤 유저의 요청인지 체크하고, 유효한 JWT라면, JWT를 이용하여 ACCESS_TOKEN 얻어서, logout에 넣어주기.
+        # 구현이 완료되지 않았다는 의미임.
+        kakao_logout_api = "https://kapi.kakao.com/v1/user/logout"
+        header = {"Authorization": f"Bearer ${access_token}"}
+        self.logout_id = requests.post(kakao_logout_api, headers=header).json()
         auth.logout(request)
-        return redirect('home')
+        return JsonResponse(self.logout_id)
 
 class UserInformationView(RetrieveAPIView):
     queryset = UserList.objects.prefetch_related()
@@ -119,14 +114,15 @@ class UserInformationView(RetrieveAPIView):
                 interest_usStock_list.append(interest_usStock_dict)
 
         return Response({
-            "firstName": obj.first_name,
-            "lastName": obj.last_name,
+            "nickname": obj.nickname,
             "portfolio_koreanStock": portfolio_koreanStock_list, 
             "interest_koreanStock": interest_koreanStock_list,
             "portfolio_usStock": portfolio_usStock_list,
             "interest_usStock": interest_usStock_list,
             "deposit": obj.userwallet.deposit 
         })
+
+
 
 
 class UserListListAPIView(ListAPIView):

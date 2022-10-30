@@ -1,7 +1,7 @@
 #  file: accounts/urls.py
 
 from django.urls import path, include, register_converter
-from accounts.views import KakaoLogoutCallBackView, KakaoLogoutView, KakaoCallBackView, KakaoView, UserListListAPIView, UserListRetrieveAPIView, UserInterestListAPIView, UserPortfolioListAPIView
+from accounts.views import KakaoLogoutView, KakaoCallBackView, KakaoView, UserListListAPIView, UserListRetrieveAPIView, UserInterestListAPIView, UserPortfolioListAPIView
 from accounts.views import UserInformationView
 
 app_name = 'accounts'
@@ -18,11 +18,9 @@ urlpatterns = [
 
     path('kakao/', KakaoView.as_view()),
     path('kakao/callback/', KakaoCallBackView.as_view()),
-    path('kakao/logout/', KakaoLogoutView.as_view()),
-    path('kakao/logout/callback/', KakaoLogoutCallBackView.as_view()),
+    path('kakao/logout/<str:access_token>', KakaoLogoutView.as_view()),
 
     path('userinformation/<str:id>/<str:token>/', 
-          UserInformationView.as_view(), name='userinformation-detail'),
-
+          UserInformationView.as_view(), name='userinformation-detail'), # (10/30) access_token을 url 파라미터로 전달하며 노출되게 하는건 올바르지 않음
 
 ]
