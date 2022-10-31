@@ -18,7 +18,7 @@ urlpatterns = [
 
     path('kakao/', KakaoView.as_view()),
     path('kakao/callback/', KakaoCallBackView.as_view()),
-    path('kakao/logout/', KakaoLogoutView.as_view()),
+    path('kakao/logout/<int:id_user>', KakaoLogoutView.as_view()),
 
     path('userinformation/<str:id>/<str:token>/', 
           UserInformationView.as_view(), name='userinformation-detail'), # (10/30) access_token을 url 파라미터로 전달하며 노출되게 하는건 올바르지 않음

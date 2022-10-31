@@ -74,8 +74,8 @@ class KakaoLogoutView(View):
     def get(self, request, id_user):
 
         # (10/30) 장고 앱에서 발급한 JWT를 비교하여, 어떤 유저의 요청인지 체크하고, 유효한 JWT라면, JWT를 이용하여 ACCESS_TOKEN 얻어서, logout에 넣어주기.
-        # 구현이 완료되지 않았다는 의미임.
-
+        # (10/31) 유저 데이터베이스에 kakao의 access_token을 저장해둔 다음에, url 파라미터로 유저의 id값을 전달 받으면, 그 값을 가지고 logout 한다.
+        # (10/31) JWT를 이용해서 유저 정보를 가져오는게 나으려나???
         try:
             user =UserList.objects.get(id=id_user)
             access_token = user.kakao_access_token
@@ -84,8 +84,7 @@ class KakaoLogoutView(View):
             self.logout_id = requests.post(kakao_logout_api, headers=header).json()
             auth.logout(request)
         except UserList.DoesNotExist:
-            pass
-
+            return JsonResponse({"Error": "Check the ID"})
         return JsonResponse(self.logout_id)
 
 class UserInformationView(RetrieveAPIView):
