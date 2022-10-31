@@ -59,23 +59,33 @@ class KakaoCallBackView(View):
     def kakao_signup_login(self, request):
         try:
             user = UserList.objects.get(id=self.user_information["id"])
+            user.kakao_access_token = self.access_token
+            user.thumbnail_image = self.user_information["kakao_account"]["profile"]["thumbnail_image_url"]
+            user.save()
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         except UserList.DoesNotExist:
-            UserList.objects.create(id=self.user_information["id"], email=self.user_information["kakao_account"]["email"], nickname=self.user_information["kakao_account"]["profile"]["nickname"], thumbnail_image=self.user_information["kakao_account"]["profile"]["thumbnail_image_url"])
+            UserList.objects.create(id=self.user_information["id"], email=self.user_information["kakao_account"]["email"], nickname=self.user_information["kakao_account"]["profile"]["nickname"], thumbnail_image=self.user_information["kakao_account"]["profile"]["thumbnail_image_url"], kakao_access_token = self.access_token)
             user = UserList.objects.get(id=self.user_information["id"])
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        
+
         return
 
 class KakaoLogoutView(View):
-    def get(self, request, access_token):
+    def get(self, request, id_user):
 
         # (10/30) 장고 앱에서 발급한 JWT를 비교하여, 어떤 유저의 요청인지 체크하고, 유효한 JWT라면, JWT를 이용하여 ACCESS_TOKEN 얻어서, logout에 넣어주기.
         # 구현이 완료되지 않았다는 의미임.
-        kakao_logout_api = "https://kapi.kakao.com/v1/user/logout"
-        header = {"Authorization": f"Bearer ${access_token}"}
-        self.logout_id = requests.post(kakao_logout_api, headers=header).json()
-        auth.logout(request)
+
+        try:
+            user =UserList.objects.get(id=id_user)
+            access_token = user.kakao_access_token
+            kakao_logout_api = "https://kapi.kakao.com/v1/user/logout"
+            header = {"Authorization": f"Bearer ${access_token}"}
+            self.logout_id = requests.post(kakao_logout_api, headers=header).json()
+            auth.logout(request)
+        except UserList.DoesNotExist:
+            pass
+
         return JsonResponse(self.logout_id)
 
 class UserInformationView(RetrieveAPIView):
