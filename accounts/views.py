@@ -91,7 +91,7 @@ class UserInformationView(RetrieveAPIView):
     queryset = UserList.objects.prefetch_related()
     lookup_field="id"
 
-    def get(self, request, id, token):
+    def get(self, request, id):
         obj = self.get_object()
         
         portfolio_koreanStock_list = list()
@@ -130,7 +130,6 @@ class UserInformationView(RetrieveAPIView):
             "interest_usStock": interest_usStock_list,
             "deposit": obj.userwallet.deposit 
         })
-
 
 
 
