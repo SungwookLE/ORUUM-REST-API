@@ -3,7 +3,7 @@
 from django.http import JsonResponse
 from rest_framework.response import Response
 import requests  
-
+from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
@@ -11,10 +11,10 @@ from django.shortcuts import render, redirect
 from accounts.serializers import UserListSerializers, UserInterestSerializers, UserPortfolioSerializers
 from accounts.models import UserList, UserInterest, UserPortfolio
 from rest_framework.views import View
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import auth
 import re
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import os
 import json
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -48,15 +48,15 @@ class KakaoCallBackView(View):
         kakao_token_api = "https://kauth.kakao.com/oauth/token"
         self.access_token = requests.post(kakao_token_api, data=data).json()["access_token"]
 
+        response = self.kakao_signup_login(request)
+        return response
+
+    def kakao_signup_login(self, request):
+
         kakako_user_api = "https://kapi.kakao.com/v2/user/me"
         header          = {"Authorization": f"Bearer ${self.access_token}"}
         self.user_information = requests.get(kakako_user_api, headers=header).json()
 
-        self.kakao_signup_login(request)
-
-        return JsonResponse({"access_token": self.access_token, "user_information":self.user_information})
-
-    def kakao_signup_login(self, request):
         try:
             user = UserList.objects.get(id=self.user_information["id"])
             user.kakao_access_token = self.access_token
@@ -68,7 +68,25 @@ class KakaoCallBackView(View):
             user = UserList.objects.get(id=self.user_information["id"])
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-        return
+        token = TokenObtainPairSerializer.get_token(user)
+        oruum_refresh_token = str(token)
+        oruum_access_token = str(token.access_token)
+        
+        response = JsonResponse({
+            "message": "login success",
+            "user_at_oruum": UserListSerializers(user).data,
+            "user_at_kakao": self.user_information,
+            "jwt_token": {
+                        "oruum_access_token": oruum_access_token,
+                        "oruum_refresh_token": oruum_refresh_token
+                    },
+                },
+                status=status.HTTP_200_OK
+            )
+        response.set_cookie("oruum_access_token", oruum_access_token, httponly=True)
+        response.set_cookie("oruum_refresh_token", oruum_refresh_token, httponly=True)
+
+        return response
 
 class KakaoLogoutView(View):
     def get(self, request, id_user):
@@ -121,6 +139,10 @@ class UserInformationView(RetrieveAPIView):
             else:
                 interest_usStock_dict["ticker"] = [str(iter_obj.ticker)] 
                 interest_usStock_list.append(interest_usStock_dict)
+        try:
+            deposit = obj.userwallet.deposit
+        except ObjectDoesNotExist:
+            deposit = ""
 
         return Response({
             "nickname": obj.nickname,
@@ -128,7 +150,7 @@ class UserInformationView(RetrieveAPIView):
             "interest_koreanStock": interest_koreanStock_list,
             "portfolio_usStock": portfolio_usStock_list,
             "interest_usStock": interest_usStock_list,
-            "deposit": obj.userwallet.deposit 
+            "deposit": deposit
         })
 
 

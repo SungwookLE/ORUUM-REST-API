@@ -73,11 +73,13 @@ REST_FRAMEWORK = {
 import datetime
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=14),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'SIGNING_KEY': 'SECRET',
     'ALGORITHM': 'HS256',
     'AUTH_HEADER_TYPES': ('JWT',),
+    'USER_ID_FIELD' : 'id',
+    'USER_ID_CLAIM' : 'id'
 }
 
 MIDDLEWARE = [
