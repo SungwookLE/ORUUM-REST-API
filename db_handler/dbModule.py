@@ -6,6 +6,7 @@ from backend.settings.base import BASE_DIR
 import pymysql
 import json
 
+
 config_file = os.path.join(BASE_DIR, 'config.json') 
 with open(config_file) as f:
     secrets = json.loads(f.read())

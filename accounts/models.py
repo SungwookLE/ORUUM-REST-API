@@ -8,16 +8,19 @@ from api.models import StockList
 class UserList(AbstractUser):
     """유저의 회원가입 정보
     pk is "id"
-    columns are ["email", "first_name", "last_name", "update_dt", "create_dt"]
+    columns are ["email", "nickname", "update_dt", "create_dt"]
     Create a custom user model by inheriting AbstractUser ...
     """
     id = models.BigAutoField(help_text="id_userlist", primary_key=True)
+    #username = None
 
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
+    nickname = models.CharField(max_length=20)
+    thumbnail_image = models.CharField(blank=True, null=True, help_text ="프로필 이미지 URL", max_length=200)
+    kakao_access_token= models.CharField(blank=True, null=True, max_length=200)
+
     # 회원 가입 시 아래 항목 입력을 필수로 지정
-    REQUIRED_FIELDS = ["email", "first_name", "last_name"]
+    REQUIRED_FIELDS = ["email", "nickname"]
 
     update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
     create_dt = models.DateTimeField(
@@ -80,5 +83,11 @@ class UserPortfolio(models.Model):
 
 class UserWallet(models.Model):
     id_user = models.OneToOneField(UserList, related_name="userwallet", on_delete=models.CASCADE, db_column="id_user", primary_key=True)
+    deposit = models.FloatField(help_text="deposit dollar", blank=True, null=True, default=0)
 
+    update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
+    create_dt = models.DateTimeField(
+        verbose_name='create_dt', auto_now_add=True)
 
+    def __str__(self):
+        return str(self.id_user)

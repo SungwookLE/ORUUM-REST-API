@@ -1,8 +1,5 @@
 #  file: backend/views.py
-from datetime import datetime
 from django.views.generic import TemplateView
-from api.models import StockList
-from django.shortcuts import get_object_or_404
 
 class HomeView(TemplateView):
     template_name = 'home.html'

@@ -21,7 +21,10 @@ INSTALLED_APPS = [
 
     # REST Framework
     'rest_framework',
-
+    'rest_framework_simplejwt',
+    # drf_yasg: django rest framework- Yet another Swagger generator
+    'drf_yasg',
+    
     # ========================================
     # CORS: Crosss-Origin Resource Sharing)
     # 웹 페이지 상의 제한된 리소스를 최초 자원이 서비스된 도메인(REST API) 밖의 다른 도메인(FRONT)으로부터 요청할 수 있게 허용하는 구조
@@ -54,7 +57,30 @@ SOCIALACCOUNT_AUTO_SIGNUP = False
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 # ========================================
 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+import datetime
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=3),
+    'SIGNING_KEY': 'SECRET',
+    'ALGORITHM': 'HS256',
+    'AUTH_HEADER_TYPES': ('JWT',),
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # CORS
