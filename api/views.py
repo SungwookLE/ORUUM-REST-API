@@ -1,23 +1,14 @@
 #  file: api/views.py
-
-from calendar import week
 import json
-
-from cgitb import lookup
-from django.http import JsonResponse
-from django.shortcuts import render
+import re
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer, StockProfileSerializer
 from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
-import re
-import datetime
-from django.db.models import Max, Min, Avg
 
 class StockPageNumberPagination(PageNumberPagination):
     page_size = 10
@@ -99,7 +90,6 @@ class HistoricalStockPriceAPIView(ListAPIView):
     def get_queryset(self):
         return StockPriceHistory.objects.filter(ticker=self.kwargs["ticker"])\
            .filter(update_date__range=[self.kwargs["s_date"], self.kwargs["e_date"]]).reverse()
-
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -197,41 +187,40 @@ class StockYearlyFinancialStatementsAPIView(RetrieveAPIView):
                 tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
                 return_dict["dateArray"] = tmp_dict.keys() 
             except KeyError: 
-                print() 
+                return_dict["dateArray"] = None 
             try: 
                 return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
             except KeyError: 
-                print() 
+                return_dict["revenueArray"] = None 
             try: 
                 return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
             except KeyError: 
-                print() 
+                return_dict["costOfRevenueArray"] = None 
             try: 
                 return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
             except KeyError: 
-                print() 
+                return_dict["grossProfit"] = None 
             try: 
                 return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
             except: 
-                print() 
+                return_dict["operatingExpense"] = None 
             try: 
                 return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
             except KeyError: 
-                print()
+                return_dict["operatingIncome"] = None 
             return_dict["basicEpsArray"].append(iter_dict["ttmEPS"])
             return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
 
         return Response(return_dict)
 
-# (10/19) 역할분담 get Stock quarterly financial statements - 성욱,  get Stock CEO - 민주 
 
-class StockQuarterlyFinancialStatementsAPIView(ListAPIView):
+class StockQuarterlyFinancialStatementsAPIView(RetrieveAPIView):
     serializer_class = StockQuarterlyFinancialStatementsSerializer
 
     def get_queryset(self):
         return StockInformationHistory.objects.filter(ticker=self.kwargs["ticker"])
 
-    def List(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -258,27 +247,27 @@ class StockQuarterlyFinancialStatementsAPIView(ListAPIView):
                 tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
                 return_dict["dateArray"] = tmp_dict.keys() 
             except KeyError: 
-                print() 
+                return_dict["dateArray"] = None
             try: 
                 return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
             except KeyError: 
-                print() 
+                return_dict["revenueArray"] = None 
             try: 
-                return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
+                return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]  
             except KeyError: 
-                print() 
+                return_dict["costOfRevenueArray"] = None
             try: 
                 return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
             except KeyError: 
-                print() 
+                return_dict["grossProfit"] = None
             try: 
                 return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
             except: 
-                print() 
+                return_dict["operatingExpense"] = None 
             try: 
                 return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
             except KeyError: 
-                print()
+                return_dict["operatingIncome"] = None 
             return_dict["basicEpsArray"].append(iter_dict["ttmEPS"])
             return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
 
@@ -302,24 +291,23 @@ class StockProfileAPIView(RetrieveAPIView):
         serializer = self.get_serializer(queryset, many=True)
 
         return_dict = dict()
-        return_dict["ceoName"] = list()
+        return_dict["name"] = list()
         return_dict["title"] = list()
         return_dict["pay"] = list()
         return_dict["age"] = list()
         return_dict["detailList"] = list()
 
-        for idx, item in enumerate(serializer.data): # CEO가 여러명인 경우 있으므로, ListAPIView 로 구현해야하는가 ? 
+        for idx, item in enumerate(serializer.data): 
             iter_dict = json.loads(json.dumps(item))
             tmp_dict = json.loads(iter_dict["company_officers"]) 
             ceo_idx = []
             
             for idx in range(len(tmp_dict)): 
-                if "CEO" in tmp_dict[idx]["title"]: ceo_idx.append(idx) 
-                
+                if re.search("CEO", tmp_dict[idx]["title"], re.I): ceo_idx.append(idx) 
             try: 
-                return_dict["ceoName"] = [tmp_dict[idx]["name"] for idx in ceo_idx]
+                return_dict["name"] = [tmp_dict[idx]["name"] for idx in ceo_idx]
             except KeyError: 
-                print() 
+                return_dict["name"] = None
             for idx in ceo_idx: 
                 try:
                     return_dict["title"].append(tmp_dict[idx]["title"])
@@ -342,4 +330,3 @@ class StockProfileAPIView(RetrieveAPIView):
                     return_dict["detailList"].append(list())
 
         return Response(return_dict) 
-
