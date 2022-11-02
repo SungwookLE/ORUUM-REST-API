@@ -7,7 +7,6 @@ import django
 import requests
 
 from tqdm import tqdm
-import dbModule
 import datetime
 import re
 from api.models import StockList, StockInformationHistory, StockPriceHistory

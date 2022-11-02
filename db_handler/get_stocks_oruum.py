@@ -1,5 +1,4 @@
 #  file: db_handler/get_stocks_oruum.py
-
 import requests  
 
 class GetStocksFromORUUM:

@@ -1,7 +1,5 @@
 #  file: dashboard/urls.py
-
-
-from django.urls import path, include
+from django.urls import path
 from dashboard.views import stockpricehistory_as_line_view, stocklist_as_bar_view, stockpricehistory_dash_as_line_view
 
 app_name = 'dashboard'

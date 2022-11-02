@@ -1,5 +1,4 @@
 #  file: dashboard/views.py
-
 from django.shortcuts import render
 from dashboard.plotly_functionset import get_stockpricehistory_plotly_object_as_line \
                                          , get_stocklist_plotly_object_as_bar

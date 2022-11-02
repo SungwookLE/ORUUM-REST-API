@@ -1,5 +1,4 @@
 #  file: dashboard/plotly_set.py
-
 import pandas as pd
 from plotly.offline import plot
 import plotly.graph_objs as go
