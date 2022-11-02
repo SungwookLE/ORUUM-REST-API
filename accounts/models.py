@@ -17,11 +17,11 @@ class UserList(AbstractUser):
     email = models.EmailField(unique=True)
     nickname = models.CharField(max_length=20)
     thumbnail_image = models.CharField(blank=True, null=True, help_text ="프로필 이미지 URL", max_length=200)
+    kakao_access_token= models.CharField(blank=True, null=True, max_length=200)
 
     # 회원 가입 시 아래 항목 입력을 필수로 지정
     REQUIRED_FIELDS = ["email", "nickname"]
 
-    kakao_access_token= models.CharField(blank=True, null=True, max_length=200)
     update_dt = models.DateTimeField(verbose_name='update_dt', auto_now=True)
     create_dt = models.DateTimeField(
         verbose_name='create_dt', auto_now_add=True)
