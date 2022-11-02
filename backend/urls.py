@@ -23,7 +23,9 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 schema_url_patterns = [ 
-    path('api/', include('api.urls')),
+    path('api/', include('api.urls')), 
+    path('accounts/', include('accounts.urls')), 
+    
     ]
 
 schema_view_v1 = get_schema_view(
