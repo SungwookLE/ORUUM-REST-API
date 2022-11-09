@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from accounts.models import UserList
+
 
 class SignupForm(UserCreationForm):
     def __init__(self, *args, **kargs):

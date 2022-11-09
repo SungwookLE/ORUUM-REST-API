@@ -80,7 +80,6 @@ class UserPortfolio(models.Model):
         return str(self.id)
 
 
-
 class UserWallet(models.Model):
     id_user = models.OneToOneField(UserList, related_name="userwallet", on_delete=models.CASCADE, db_column="id_user", primary_key=True)
     deposit = models.FloatField(help_text="deposit dollar", blank=True, null=True, default=0)

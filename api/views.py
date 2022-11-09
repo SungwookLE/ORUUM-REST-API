@@ -6,7 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
-from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer, StockProfileSerializer
+from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockSummarySerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer, StockProfileSerializer
 from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
 
@@ -123,12 +123,13 @@ class HistoricalStockPriceAPIView(ListAPIView):
 
 
 class StockSummaryAPIView(RetrieveAPIView):
-    queryset = StockList.objects.prefetch_related()
+    queryset = StockList.objects.prefetch_related() 
     lookup_field="ticker"
-
+    serializer_class = StockSummarySerializer
+    
     def get(self, request, ticker):
         obj = self.get_object()
-
+        print(obj)
         priceUnit = "dollar" if re.search("^NYSE|^Nasdaq", obj.market) else None
 
         return Response({
@@ -137,12 +138,12 @@ class StockSummaryAPIView(RetrieveAPIView):
             'englishName': obj.name_english,
             'tagList': list(),
             'priceUnit': priceUnit,
-            'currentPrice': f"{obj.price:.2f}",
-            'dailyChange': f"{obj.price-obj.price_open:.2f}",
-            'dailyChangePercentage': f"{(obj.price-obj.price_open)/obj.price_open:.2f}",
+            'currentPrice': f"{obj.price:.2f}" if (obj.price is not None) else None,
+            'dailyChange': f"{obj.price - obj.price_open:.2f}" if (obj.price is not None) & (obj.price_open is not None) else None,
+            'dailyChangePercentage': f"{(obj.price - obj.price_open)/obj.price_open:.2f}" if (obj.price is not None) & (obj.price_open is not None) else None,
             '52weekHigh': f"{obj.stockinformationhistory.fiftytwoweek_high:.2f}" if (obj.stockinformationhistory.fiftytwoweek_high is not None) else None,
             '52weekLow': f"{obj.stockinformationhistory.fiftytwoweek_low:.2f}" if (obj.stockinformationhistory.fiftytwoweek_low is not None) else None,
-            "fallingPercentageFrom52WeekHigh": f'{(obj.stockinformationhistory.fiftytwoweek_high- obj.price) / obj.stockinformationhistory.fiftytwoweek_high:.2f}',
+            "fallingPercentageFrom52WeekHigh": f"{(obj.stockinformationhistory.fiftytwoweek_high - obj.price) / obj.stockinformationhistory.fiftytwoweek_high:.2f}" if (obj.stockinformationhistory.fiftytwoweek_high is not None) else None,
             "ttmPER" : f"{obj.stockinformationhistory.ttmPER:.2f}" if (obj.stockinformationhistory.ttmPER is not None) else None,
             "ttmPSR" : f"{obj.stockinformationhistory.ttmPSR:.2f}" if (obj.stockinformationhistory.ttmPSR is not None) else None,
             "ttmPBR" : f"{obj.stockinformationhistory.ttmPBR:.2f}" if (obj.stockinformationhistory.ttmPBR is not None) else None,
