@@ -22,7 +22,7 @@ class UserPortfolioSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserInformationSerializers(serializers.ModelSerializer):
+class UserInformationSerializers(serializers.ModelSerializer): # (11/9) RetrieveAPIView에 serializer_class 없는 경우 에러 해결을 위한 임시방편으로 구성 
     class Meta:
         model = UserWallet
         fields = '__all__'

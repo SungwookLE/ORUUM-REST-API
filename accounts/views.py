@@ -138,7 +138,7 @@ class KakaoLogoutView(APIView): # View -> APIView
 class UserInformationView(RetrieveAPIView):
     queryset = UserList.objects.prefetch_related()
     lookup_field = "id"
-    serializer_class = UserInformationSerializers
+    # serializer_class = UserInformationSerializers
 
     def get(self, request, id):
         obj = self.get_object()

@@ -27,7 +27,7 @@ class HistoricalStockPriceSerializer(serializers.ModelSerializer):
         fields = ["ticker", "update_date", "price_close", "price_open","price_high","price_low", "volume"]
 
 
-class StockSummarySerializer(serializers.ModelSerializer):
+class StockSummarySerializer(serializers.ModelSerializer): # (11/9) RetrieveAPIView에 serializer_class 없는 경우 에러 해결을 위한 임시방편으로 구성 
     class Meta:
         model = StockInformationHistory
         fields = '__all__'
