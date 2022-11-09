@@ -30,9 +30,6 @@ with open(config_file) as f:
 class UserPageNumberPagination(PageNumberPagination):
     page_size = 10
 
-# 카카오 로그인 구현/스터디
-## (10/26) https://velog.io/@junsikchoi/Django%EB%A1%9C-%EC%B9%B4%EC%B9%B4%EC%98%A4-%EC%86%8C%EC%85%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8%EC%9D%84-%ED%95%B4%EB%B3%B4%EC%9E%90
-
 class KakaoView(APIView): # View -> APIView 
     def get(self, request):
         kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
