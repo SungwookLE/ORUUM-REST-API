@@ -20,10 +20,18 @@ class StockPriceHistorySerializer(serializers.ModelSerializer):
         model = StockPriceHistory
         fields = '__all__'
 
+
 class HistoricalStockPriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockPriceHistory
         fields = ["ticker", "update_date", "price_close", "price_open","price_high","price_low", "volume"]
+
+
+class StockSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockInformationHistory
+        fields = '__all__'
+
 
 # (10/03) API 요구사항 반영을 위한 신규 REST serializer 생성1
 class StockYearlyFinancialStatementsSerializer(serializers.ModelSerializer): 

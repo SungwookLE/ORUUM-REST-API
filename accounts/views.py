@@ -1,23 +1,26 @@
 #  file: accounts/views.py
 
-from django.db import reset_queries
-from django.http import JsonResponse
-from rest_framework.response import Response
+import os
+import re
+import json
 import requests
+
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.contrib import auth
+from django.core.exceptions import ObjectDoesNotExist
+
+from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-
-from django.shortcuts import render, redirect
-from accounts.serializers import UserListSerializers, UserInterestSerializers, UserPortfolioSerializers
-from accounts.models import UserList, UserInterest, UserPortfolio
 from rest_framework.views import View, APIView
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib import auth
-import re
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-import os
-import json
+
+from accounts.serializers import UserInformationSerializers, UserListSerializers, UserInterestSerializers, UserPortfolioSerializers
+from accounts.models import UserList, UserInterest, UserPortfolio
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 config_file = os.path.join(BASE_DIR, 'config.json')
 with open(config_file) as f:
@@ -30,7 +33,7 @@ class UserPageNumberPagination(PageNumberPagination):
 # 카카오 로그인 구현/스터디
 ## (10/26) https://velog.io/@junsikchoi/Django%EB%A1%9C-%EC%B9%B4%EC%B9%B4%EC%98%A4-%EC%86%8C%EC%85%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8%EC%9D%84-%ED%95%B4%EB%B3%B4%EC%9E%90
 
-class KakaoView(View):
+class KakaoView(APIView): # View -> APIView 
     def get(self, request):
         kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
         redirect_uri = "http://0.0.0.0:8000/accounts/kakao/callback/"
@@ -113,7 +116,7 @@ class KakaoCallBackView(APIView):
         return ret
 
 
-class KakaoLogoutView(View):
+class KakaoLogoutView(APIView): # View -> APIView 
     def get(self, request, id_user):
 
         # (10/30) 장고 앱에서 발급한 JWT를 비교하여, 어떤 유저의 요청인지 체크하고, 유효한 JWT라면, JWT를 이용하여 ACCESS_TOKEN 얻어서, logout에 넣어주기.
@@ -135,6 +138,7 @@ class KakaoLogoutView(View):
 class UserInformationView(RetrieveAPIView):
     queryset = UserList.objects.prefetch_related()
     lookup_field = "id"
+    serializer_class = UserInformationSerializers
 
     def get(self, request, id):
         obj = self.get_object()
