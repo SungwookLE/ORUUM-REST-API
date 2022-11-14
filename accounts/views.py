@@ -1,26 +1,24 @@
 #  file: accounts/views.py
 
-import os
-import re
-import json
-import requests
-
 from django.http import JsonResponse
-from django.shortcuts import redirect
-from django.contrib import auth
-from django.core.exceptions import ObjectDoesNotExist
-
 from rest_framework.response import Response
+import requests
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.views import View, APIView
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from accounts.serializers import UserInformationSerializers, UserListSerializers, UserInterestSerializers, UserPortfolioSerializers
+from django.shortcuts import render, redirect
+from accounts.serializers import UserListSerializers, UserInterestSerializers, UserPortfolioSerializers
 from accounts.models import UserList, UserInterest, UserPortfolio
+from rest_framework.views import View, APIView
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import auth
+import re
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+import os
+import json
 
-
+from rest_framework.permissions import IsAuthenticated
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 config_file = os.path.join(BASE_DIR, 'config.json')
 with open(config_file) as f:
@@ -30,14 +28,14 @@ with open(config_file) as f:
 class UserPageNumberPagination(PageNumberPagination):
     page_size = 10
 
-class KakaoView(APIView): # View -> APIView 
+class KakaoView(APIView):
     def get(self, request):
         kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
         redirect_uri = "http://0.0.0.0:8000/accounts/kakao/callback/"
         client_id = secrets["KAKAO_REST_API_KEY"]
         return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
 
-class KakaoCallBackView(APIView):
+class KakaoCallBackView(View):
     def get(self, request):
         data = {
             "grant_type": "authorization_code",
@@ -50,11 +48,11 @@ class KakaoCallBackView(APIView):
         self.kakao_access_token = requests.post(
             kakao_token_api, data=data).json()["access_token"]
 
-        dict_user_kakao, user = self.get_user_as_dict_with_kakao_login(request)
-        dict_jwt = self.get_jwt_login(user)
+        dict_user_kakao = self.get_user_as_dict_with_kakao_login(request)
+        dict_jwt = self.get_jwt_login(request)
         dict_user_kakao.update(dict_jwt)
 
-        response = Response(dict_user_kakao,
+        response = JsonResponse(dict_user_kakao,
                             status=status.HTTP_200_OK
                             )
 
@@ -96,12 +94,11 @@ class KakaoCallBackView(APIView):
 
         ret["user_oruum"] = UserListSerializers(user).data
 
-        return ret, user
+        return ret
 
-    def get_jwt_login(self, user):
-        ret = dict()
+    def get_jwt_login(self, request):
 
-        jwt_token = TokenObtainPairSerializer.get_token(user)
+        jwt_token = TokenObtainPairSerializer.get_token(request.user)
         jwt_refresh_token = str(jwt_token)
         jwt_access_token = str(jwt_token.access_token)
 
@@ -113,29 +110,36 @@ class KakaoCallBackView(APIView):
         return ret
 
 
-class KakaoLogoutView(APIView): # View -> APIView 
-    def get(self, request, id_user):
+class KakaoLogoutView(View):
+
+    def get(self, request):
 
         # (10/30) 장고 앱에서 발급한 JWT를 비교하여, 어떤 유저의 요청인지 체크하고, 유효한 JWT라면, JWT를 이용하여 ACCESS_TOKEN 얻어서, logout에 넣어주기.
-        # (10/31) 유저 데이터베이스에 kakao의 access_token을 저장해둔 다음에, url 파라미터로 유저의 id값을 전달 받으면, 그 값을 가지고 logout 한다.
-        # (10/31) JWT를 이용해서 유저 정보를 가져오는게 나으려나???
-        try:
-            user = UserList.objects.get(id=id_user)
-            access_token = user.kakao_access_token
-            kakao_logout_api = "https://kapi.kakao.com/v1/user/logout"
-            header = {"Authorization": f"Bearer ${access_token}"}
-            self.logout_id = requests.post(
+        # (11/14) JWT 토큰 인증 방식이 아니라, 장고에서 제공하는 세션 인증 방식으로 로그인 로그아웃이 구현되어 있음. 토큰 인증 방식으로 수정해야함. "Authentication credentials were not provided."
+        user = request.user
+        access_token = user.kakao_access_token
+
+        kakao_logout_api = "https://kapi.kakao.com/v1/user/logout"
+        header = {"Authorization": f"Bearer ${access_token}"}
+        self.logout_id = requests.post(
                 kakao_logout_api, headers=header).json()
-            auth.logout(request)
-        except UserList.DoesNotExist:
-            return JsonResponse({"Error": "Check the ID"})
-        return JsonResponse(self.logout_id)
+        auth.logout(request)
+
+        response = JsonResponse({"logout" : "success", "user_oruum": UserListSerializers(user).data},
+                            status=status.HTTP_200_OK
+                            )
+
+        response.delete_cookie("jwt_access_token")
+        response.delete_cookie("jwt_refresh_token")
+        # print(request.COOKIES.get('jwt_access_token'))
+
+        return response
 
 
 class UserInformationView(RetrieveAPIView):
     queryset = UserList.objects.prefetch_related()
     lookup_field = "id"
-    # serializer_class = UserInformationSerializers
+    
 
     def get(self, request, id):
         obj = self.get_object()

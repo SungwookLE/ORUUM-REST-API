@@ -47,7 +47,7 @@ urlpatterns = [
 
     path('accounts/', include('accounts.urls')),
     # oauth를 위한 url
-    path('accounts/', include('allauth.urls')),
+    # path('accounts/', include('allauth.urls')),
     
     # dashboard를 위한 url
     path('dashboard/', include('dashboard.urls')),
