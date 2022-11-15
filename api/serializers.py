@@ -1,9 +1,10 @@
 #  file: api/serializers.py
+import re
+import json
+
 from rest_framework import serializers
 from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
-import re
-import json
 
 class StockListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,30 +31,179 @@ class HistoricalStockPriceSerializer(serializers.ModelSerializer):
 
 # (10/03) API 요구사항 반영을 위한 신규 REST serializer 생성1
 class StockYearlyFinancialStatementsSerializer(serializers.ModelSerializer): 
+    dateArray = serializers.SerializerMethodField()
+    revenueArray = serializers.SerializerMethodField()
+    costOfRevenueArray = serializers.SerializerMethodField()
+    grossProfit = serializers.SerializerMethodField()
+    operatingExpense = serializers.SerializerMethodField()
+    operatingIncome = serializers.SerializerMethodField()
+    basicEpsArray = serializers.SerializerMethodField()
+    dilutedEpsArray = serializers.SerializerMethodField()
+    
     class Meta: 
         model = StockInformationHistory
-        fields = '__all__'
+        fields = ["dateArray", "revenueArray", "costOfRevenueArray", "grossProfit", "operatingExpense", "operatingIncome", "basicEpsArray", "dilutedEpsArray"]
+        
+    def get_dateArray(self, object): 
+        iter_dict = json.loads(object.yearly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return iter_dict.keys() 
+        except KeyError: 
+            return None
+        
+    def get_revenueArray(self, object): 
+        iter_dict = json.loads(object.yearly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["totalRevenue"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_costOfRevenueArray(self, object): 
+        iter_dict = json.loads(object.yearly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["costOfRevenue"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_grossProfit(self, object): 
+        iter_dict = json.loads(object.yearly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["grossProfit"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_operatingExpense(self, object): 
+        iter_dict = json.loads(object.yearly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["totalOperatingExpenses"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_operatingIncome(self, object): 
+        iter_dict = json.loads(object.yearly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["operatingIncome"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_basicEpsArray(self, object): # ttmEPS 
+        iter_dict = json.loads(object.yearly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return iter_dict["ttmEPS"]
+        except KeyError: 
+            return None
+    
+    def get_dilutedEpsArray(self, object): # ttmEPS 
+        iter_dict = json.loads(object.yearly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return iter_dict["ttmEPS"]
+        except KeyError: 
+            return None
+        
 
+class StockQuarterlyFinancialStatementsSerializer(serializers.ModelSerializer): 
+    dateArray = serializers.SerializerMethodField()
+    revenueArray = serializers.SerializerMethodField()
+    costOfRevenueArray = serializers.SerializerMethodField()
+    grossProfit = serializers.SerializerMethodField()
+    operatingExpense = serializers.SerializerMethodField()
+    operatingIncome = serializers.SerializerMethodField()
+    basicEpsArray = serializers.SerializerMethodField()
+    dilutedEpsArray = serializers.SerializerMethodField()
+    
+    class Meta: 
+        model = StockInformationHistory
+        fields = ["dateArray", "revenueArray", "costOfRevenueArray", "grossProfit", "operatingExpense", "operatingIncome", "basicEpsArray", "dilutedEpsArray"]
+        
+    def get_dateArray(self, object): 
+        iter_dict = json.loads(object.quarterly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return iter_dict.keys() 
+        except KeyError: 
+            return None
+        
+    def get_revenueArray(self, object): 
+        iter_dict = json.loads(object.quarterly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["totalRevenue"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_costOfRevenueArray(self, object): 
+        iter_dict = json.loads(object.quarterly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["costOfRevenue"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_grossProfit(self, object): 
+        iter_dict = json.loads(object.quarterly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["grossProfit"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_operatingExpense(self, object): 
+        iter_dict = json.loads(object.quarterly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["totalOperatingExpenses"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_operatingIncome(self, object): 
+        iter_dict = json.loads(object.quarterly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return [iter_dict[key]["operatingIncome"] for key in iter_dict.keys()] 
+        except KeyError: 
+            return None
+        
+    def get_basicEpsArray(self, object): # ttmEPS 
+        iter_dict = json.loads(object.quarterly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return iter_dict["ttmEPS"]
+        except KeyError: 
+            return None
+    
+    def get_dilutedEpsArray(self, object): # ttmEPS 
+        iter_dict = json.loads(object.quarterly_income_statement)
+        try: 
+            iter_dict = {key:iter_dict[key] for key in sorted(iter_dict)} 
+            return iter_dict["ttmEPS"]
+        except KeyError: 
+            return None
+        
+    
 # (10/19) API 요구사항 반영을 위한 신규 REST serializer 생성2
 class StockProfileSerializer(serializers.ModelSerializer): 
-    # field 추가 
-    # company_officers 에서 아래 field에 해당하는 값들을 채워넣음. 
-    # serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
-    # title = serializers.SerializerMethodField()
-    # pay = serializers.SerializerMethodField()
-    # age = serializers.SerializerMethodField()
-    # detailList = []
+    title = serializers.SerializerMethodField()
+    pay = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    detailList = serializers.SerializerMethodField()
     
     class Meta: 
         model = StockProfile
-        fields =  '__all__' # ["name"] name, title, pay, age, detailList
+        fields =  ["name", "title", "pay", "age", "detailList"]
     
     def get_name(self, object): 
         company_officers = object.company_officers 
  
         iter_dict = json.loads(company_officers)
-        print(iter_dict) 
         ceo_idx = []
         
         for idx in range(len(iter_dict)): 
@@ -63,20 +213,47 @@ class StockProfileSerializer(serializers.ModelSerializer):
         except KeyError: 
             return None 
 
-    # def get_title(self, object) 
-    #   company_officers = object.company_officers 
-    #   (ceo name을 찾는 로직 추가)
+    def get_title(self, object): 
+        company_officers = object.company_officers 
+ 
+        iter_dict = json.loads(company_officers)
+        ceo_idx = []
+        
+        for idx in range(len(iter_dict)): 
+            if re.search("CEO", iter_dict[idx]["title"], re.I): ceo_idx.append(idx) 
+        try: 
+            return [iter_dict[idx]["title"] for idx in ceo_idx] 
+        except KeyError: 
+            return None 
     
-    # def get_pay(self, object) 
-    #   company_officers = object.company_officers 
-    #   (ceo name을 찾는 로직 추가)
+    def get_pay(self, object): 
+        company_officers = object.company_officers 
+ 
+        iter_dict = json.loads(company_officers)
+        ceo_idx = []
+        
+        for idx in range(len(iter_dict)): 
+            if re.search("CEO", iter_dict[idx]["title"], re.I): ceo_idx.append(idx) 
+        try: 
+            return [iter_dict[idx]["totalPay"] for idx in ceo_idx] 
+        except KeyError: 
+            return None 
     
-    # def get_age(self, object) 
-    #   company_officers = object.company_officers 
-    #   (ceo name을 찾는 로직 추가)
+    def get_age(self, object): 
+        company_officers = object.company_officers 
+ 
+        iter_dict = json.loads(company_officers)
+        ceo_idx = []
+        
+        for idx in range(len(iter_dict)): 
+            if re.search("CEO", iter_dict[idx]["title"], re.I): ceo_idx.append(idx) 
+        try: 
+            return [iter_dict[idx]["age"] for idx in ceo_idx] 
+        except KeyError: 
+            return None 
     
-class StockQuarterlyFinancialStatementsSerializer(serializers.ModelSerializer): 
-    class Meta: 
-        model = StockInformationHistory
-        fields = '__all__'
+    def get_detailList(self, object): 
+        return [] 
+    
+
         
