@@ -290,43 +290,43 @@ class StockProfileAPIView(RetrieveAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
 
-        return_dict = dict()
-        return_dict["name"] = list()
-        return_dict["title"] = list()
-        return_dict["pay"] = list()
-        return_dict["age"] = list()
-        return_dict["detailList"] = list()
+        # return_dict = dict()
+        # return_dict["name"] = list()
+        # return_dict["title"] = list()
+        # return_dict["pay"] = list()
+        # return_dict["age"] = list()
+        # return_dict["detailList"] = list()
 
-        for idx, item in enumerate(serializer.data): 
-            iter_dict = json.loads(json.dumps(item))
-            tmp_dict = json.loads(iter_dict["company_officers"]) 
-            ceo_idx = []
+        # for idx, item in enumerate(serializer.data): 
+        #     iter_dict = json.loads(json.dumps(item))
+        #     tmp_dict = json.loads(iter_dict["company_officers"]) 
+        #     ceo_idx = []
             
-            for idx in range(len(tmp_dict)): 
-                if re.search("CEO", tmp_dict[idx]["title"], re.I): ceo_idx.append(idx) 
-            try: 
-                return_dict["name"] = [tmp_dict[idx]["name"] for idx in ceo_idx]
-            except KeyError: 
-                return_dict["name"] = None
-            for idx in ceo_idx: 
-                try:
-                    return_dict["title"].append(tmp_dict[idx]["title"])
-                except KeyError: 
-                    return_dict["title"].append(None)
-            for idx in ceo_idx: 
-                try:
-                    return_dict["pay"].append(tmp_dict[idx]["totalPay"])
-                except KeyError: 
-                    return_dict["pay"].append(None)
-            for idx in ceo_idx: 
-                try:
-                    return_dict["age"].append(tmp_dict[idx]["age"])
-                except KeyError: 
-                    return_dict["age"].append(None)
-            for idx in ceo_idx: 
-                try:
-                    return_dict["detailList"].append(tmp_dict[idx]["detailList"])
-                except KeyError: 
-                    return_dict["detailList"].append(list())
+        #     for idx in range(len(tmp_dict)): 
+        #         if re.search("CEO", tmp_dict[idx]["title"], re.I): ceo_idx.append(idx) 
+        #     try: 
+        #         return_dict["name"] = [tmp_dict[idx]["name"] for idx in ceo_idx]
+        #     except KeyError: 
+        #         return_dict["name"] = None
+        #     for idx in ceo_idx: 
+        #         try:
+        #             return_dict["title"].append(tmp_dict[idx]["title"])
+        #         except KeyError: 
+        #             return_dict["title"].append(None)
+        #     for idx in ceo_idx: 
+        #         try:
+        #             return_dict["pay"].append(tmp_dict[idx]["totalPay"])
+        #         except KeyError: 
+        #             return_dict["pay"].append(None)
+        #     for idx in ceo_idx: 
+        #         try:
+        #             return_dict["age"].append(tmp_dict[idx]["age"])
+        #         except KeyError: 
+        #             return_dict["age"].append(None)
+        #     for idx in ceo_idx: 
+        #         try:
+        #             return_dict["detailList"].append(tmp_dict[idx]["detailList"])
+        #         except KeyError: 
+        #             return_dict["detailList"].append(list())
 
-        return Response(return_dict) 
+        return Response(serializer.data) # Response(return_dict) 
