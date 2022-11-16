@@ -4,6 +4,7 @@ import json
 
 from rest_framework import serializers
 from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class StockListSerializer(serializers.ModelSerializer):
@@ -64,21 +65,21 @@ class StockSummarySerializer(serializers.ModelSerializer):
     dailyChange = serializers.SerializerMethodField()
     dailyChangePercentage = serializers.SerializerMethodField()
     # 
-    # fiftytwoWeekHigh = serializers.SerializerMethodField() # 52weekHigh 
-    # fiftytwoWeekLow = serializers.SerializerMethodField() # 52weekLow 
-    # fallingPercentageFrom52WeekHigh = serializers.SerializerMethodField() 
-    # ttmPER = serializers.SerializerMethodField() 
-    # ttmPSR = serializers.SerializerMethodField() 
-    # ttmPBR = serializers.SerializerMethodField() 
-    # ttmPEGR = serializers.SerializerMethodField() 
-    # forwardPER = serializers.SerializerMethodField() 
-    # forwardPSR = serializers.SerializerMethodField() 
-    # marketCap = serializers.SerializerMethodField() 
-    # ttmpEPS = serializers.SerializerMethodField() 
+    fiftytwoWeekHigh = serializers.SerializerMethodField() # 52weekHigh 
+    fiftytwoWeekLow = serializers.SerializerMethodField() # 52weekLow 
+    fallingPercentageFrom52WeekHigh = serializers.SerializerMethodField() 
+    ttmPER = serializers.SerializerMethodField() 
+    ttmPSR = serializers.SerializerMethodField() 
+    ttmPBR = serializers.SerializerMethodField() 
+    ttmPEGR = serializers.SerializerMethodField() 
+    forwardPER = serializers.SerializerMethodField() 
+    forwardPSR = serializers.SerializerMethodField() 
+    marketCap = serializers.SerializerMethodField() 
+    ttmpEPS = serializers.SerializerMethodField() 
     
     class Meta:
         model = StockList 
-        fields = ["ticker", "koreanName", "englishName", "tagList", "priceUnit", "currentPrice", "dailyChange", "dailyChangePercentage"] #, "fiftytwoWeekHigh", "fiftytwoWeekLow", "fallingPercentageFrom52WeekHigh", "ttmPER", "ttmPSR", "ttmPBR", "ttmPEGR", "forwardPER", "forwardPSR", "marketCap", "ttmpEPS"]
+        fields = ["ticker", "koreanName", "englishName", "tagList", "priceUnit", "currentPrice", "dailyChange", "dailyChangePercentage", "fiftytwoWeekHigh", "fiftytwoWeekLow", "fallingPercentageFrom52WeekHigh", "ttmPER", "ttmPSR", "ttmPBR", "ttmPEGR", "forwardPER", "forwardPSR", "marketCap", "ttmpEPS"]
     
     def get_koreanName(self, object): 
         return object.name_korea
@@ -104,39 +105,74 @@ class StockSummarySerializer(serializers.ModelSerializer):
         except ZeroDivisionError: 
             return 0 
 
-    # def get_fiftytwoWeekHigh(self, object): 
-    #     return f"{object.stockinformationhistory.fiftytwoweek_high:.2f}" if (object.stockinformationhistory.fiftytwoweek_high is not None) else None
-
-    # def get_fiftytwoWeekLow(self, object): 
-    #     return f"{object.stockinformationhistory.fiftytwoweek_low:.2f}" if (object.stockinformationhistory.fiftytwoweek_low is not None) else None
-
-    # def get_fallingPercentageFrom52WeekHigh(self, object): 
-    #     return f'{(object.stockinformationhistory.fiftytwoweek_high- object.price) / object.stockinformationhistory.fiftytwoweek_high:.2f}'
-
-    # def get_ttmPER(self, object): 
-    #     return f"{object.stockinformationhistory.ttmPER:.2f}" if (object.stockinformationhistory.ttmPER is not None) else None
-
-    # def get_ttmPSR(self, object): 
-    #     return f"{object.stockinformationhistory.ttmPSR:.2f}" if (object.stockinformationhistory.ttmPSR is not None) else None
-    
-    # def get_ttmPBR(self, object): 
-    #     return f"{object.stockinformationhistory.ttmPBR:.2f}" if (object.stockinformationhistory.ttmPBR is not None) else None
-    
-    # def get_ttmPEGR(self, object): 
-    #     return f"{object.stockinformationhistory.ttmPEGR:.2f}" if (object.stockinformationhistory.ttmPEGR is not None) else None
-    
-    # def get_forwardPER(self, object): 
-    #     return f"{object.stockinformationhistory.forwardPER:.2f}" if (object.stockinformationhistory.forwardPER is not None) else None
-    
-    # def get_forwardPSR(self, object): 
-    #     return f"{object.stockinformationhistory.forwardPSR:.2f}" if (object.stockinformationhistory.forwardPSR is not None) else None
-    
-    # def get_marketCap(self, object): 
-    #     return f"{object.stockinformationhistory.marketCap:.2f}" if (object.stockinformationhistory.marketCap is not None) else None
-    
-    # def get_ttmpEPS(self, object): 
-    #     return f"{object.stockinformationhistory.ttmEPS:.2f}" if (object.stockinformationhistory.ttmEPS is not None) else None
-
+    def get_fiftytwoWeekHigh(self, object): 
+        try: 
+            return f"{object.stockinformationhistory.fiftytwoweek_high:.2f}" if (object.stockinformationhistory.fiftytwoweek_high is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_fiftytwoWeekLow(self, object): 
+        try: 
+            return f"{object.stockinformationhistory.fiftytwoweek_low:.2f}" if (object.stockinformationhistory.fiftytwoweek_low is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_fallingPercentageFrom52WeekHigh(self, object): 
+        try:        
+            return f'{(object.stockinformationhistory.fiftytwoweek_high-object.price) / object.stockinformationhistory.fiftytwoweek_high:.2f}'
+        except TypeError: 
+            return None 
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_ttmPER(self, object): 
+        try:
+            return f"{object.stockinformationhistory.ttmPER:.2f}" if (object.stockinformationhistory.ttmPER is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_ttmPSR(self, object): 
+        try:
+            return f"{object.stockinformationhistory.ttmPSR:.2f}" if (object.stockinformationhistory.ttmPSR is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_ttmPBR(self, object): 
+        try:
+            return f"{object.stockinformationhistory.ttmPBR:.2f}" if (object.stockinformationhistory.ttmPBR is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_ttmPEGR(self, object): 
+        try:
+            return f"{object.stockinformationhistory.ttmPEGR:.2f}" if (object.stockinformationhistory.ttmPEGR is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_forwardPER(self, object): 
+        try: 
+            return f"{object.stockinformationhistory.forwardPER:.2f}" if (object.stockinformationhistory.forwardPER is not None) else None
+        except ObjectDoesNotExist: 
+            return None    
+        
+    def get_forwardPSR(self, object): 
+        try:
+            return f"{object.stockinformationhistory.forwardPSR:.2f}" if (object.stockinformationhistory.forwardPSR is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_marketCap(self, object): 
+        try:
+            return f"{object.stockinformationhistory.marketCap:.2f}" if (object.stockinformationhistory.marketCap is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
+    def get_ttmpEPS(self, object): 
+        try:
+            return f"{object.stockinformationhistory.ttmEPS:.2f}" if (object.stockinformationhistory.ttmEPS is not None) else None
+        except ObjectDoesNotExist: 
+            return None
+        
     
 # (10/03) API 요구사항 반영을 위한 신규 REST serializer 생성1
 class StockYearlyFinancialStatementsSerializer(serializers.ModelSerializer): 
