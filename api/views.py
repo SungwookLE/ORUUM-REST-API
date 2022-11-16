@@ -6,7 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
-from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer, StockProfileSerializer
+from api.serializers import StockListSerializer, StockInformationHistorySerializer, StockPriceHistorySerializer, HistoricalStockPriceSerializer, StockSummarySerializer, StockYearlyFinancialStatementsSerializer, StockQuarterlyFinancialStatementsSerializer, StockProfileSerializer
 from api.models import StockList, StockInformationHistory, StockPriceHistory, StockProfile
 
 
@@ -101,57 +101,56 @@ class HistoricalStockPriceAPIView(ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
 
-        return_dict = dict()
-        return_dict["ticker"] = self.kwargs["ticker"]
-        return_dict["dateArray"] = list()
-        return_dict["closeArray"] = list()
-        return_dict["openArray"] = list()
-        return_dict["highArray"] = list()
-        return_dict["lowArray"] = list()
-        return_dict["volumeArray"] = list()
-
-        for idx, item in enumerate(serializer.data):
-            iter_dict = json.loads(json.dumps(item))
-            return_dict["dateArray"].append(iter_dict["update_date"])
-            return_dict["closeArray"].append(iter_dict["price_close"])
-            return_dict["openArray"].append(iter_dict["price_open"])
-            return_dict["highArray"].append(iter_dict["price_high"])
-            return_dict["lowArray"].append(iter_dict["price_low"])
-            return_dict["volumeArray"].append(iter_dict["volume"])
-
-        return Response(return_dict)
+        return Response(serializer.data)
 
 
 class StockSummaryAPIView(RetrieveAPIView):
-    queryset = StockList.objects.prefetch_related()
-    lookup_field="ticker"
+    serializer_class = StockSummarySerializer 
+    
+    # queryset = StockList.objects.prefetch_related()
+    # lookup_field="ticker"
+    def get_queryset(self):
+        # return StockInformationHistory.objects.filter(ticker=self.kwargs["ticker"]) 
+        return StockList.objects.prefetch_related().filter(ticker=self.kwargs["ticker"])
 
-    def get(self, request, ticker):
-        obj = self.get_object()
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
 
-        priceUnit = "dollar" if re.search("^NYSE|^Nasdaq", obj.market) else None
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-        return Response({
-            'ticker': obj.ticker,
-            'koreanName': obj.name_korea,
-            'englishName': obj.name_english,
-            'tagList': list(),
-            'priceUnit': priceUnit,
-            'currentPrice': f"{obj.price:.2f}",
-            'dailyChange': f"{obj.price-obj.price_open:.2f}",
-            'dailyChangePercentage': f"{(obj.price-obj.price_open)/obj.price_open:.2f}",
-            '52weekHigh': f"{obj.stockinformationhistory.fiftytwoweek_high:.2f}" if (obj.stockinformationhistory.fiftytwoweek_high is not None) else None,
-            '52weekLow': f"{obj.stockinformationhistory.fiftytwoweek_low:.2f}" if (obj.stockinformationhistory.fiftytwoweek_low is not None) else None,
-            "fallingPercentageFrom52WeekHigh": f'{(obj.stockinformationhistory.fiftytwoweek_high- obj.price) / obj.stockinformationhistory.fiftytwoweek_high:.2f}',
-            "ttmPER" : f"{obj.stockinformationhistory.ttmPER:.2f}" if (obj.stockinformationhistory.ttmPER is not None) else None,
-            "ttmPSR" : f"{obj.stockinformationhistory.ttmPSR:.2f}" if (obj.stockinformationhistory.ttmPSR is not None) else None,
-            "ttmPBR" : f"{obj.stockinformationhistory.ttmPBR:.2f}" if (obj.stockinformationhistory.ttmPBR is not None) else None,
-            "ttmPEGR" : f"{obj.stockinformationhistory.ttmPEGR:.2f}" if (obj.stockinformationhistory.ttmPEGR is not None) else None,
-            "forwardPER" : f"{obj.stockinformationhistory.forwardPER:.2f}" if (obj.stockinformationhistory.forwardPER is not None) else None,
-            "forwardPSR" : f"{obj.stockinformationhistory.forwardPSR:.2f}" if (obj.stockinformationhistory.forwardPSR is not None) else None,
-            "marketCap" : f"{obj.stockinformationhistory.marketCap:.2f}" if (obj.stockinformationhistory.marketCap is not None) else None,
-            "ttmpEPS" : f"{obj.stockinformationhistory.ttmEPS:.2f}" if (obj.stockinformationhistory.ttmEPS is not None) else None
-        })
+        serializer = self.get_serializer(queryset, many=True)
+        print(serializer.data)
+        return Response(serializer.data) 
+    
+    # def get(self, request, ticker):
+    #     obj = self.get_object()
+
+    #     priceUnit = "dollar" if re.search("^NYSE|^Nasdaq", obj.market) else None
+
+        # return Response({
+        #     'ticker': obj.ticker,
+        #     'koreanName': obj.name_korea,
+        #     'englishName': obj.name_english,
+        #     'tagList': list(),
+        #     'priceUnit': priceUnit,
+        #     'currentPrice': f"{obj.price:.2f}",
+        #     'dailyChange': f"{obj.price-obj.price_open:.2f}",
+        #     'dailyChangePercentage': f"{(obj.price-obj.price_open)/obj.price_open:.2f}",
+        #     '52weekHigh': f"{obj.stockinformationhistory.fiftytwoweek_high:.2f}" if (obj.stockinformationhistory.fiftytwoweek_high is not None) else None,
+        #     '52weekLow': f"{obj.stockinformationhistory.fiftytwoweek_low:.2f}" if (obj.stockinformationhistory.fiftytwoweek_low is not None) else None,
+        #     "fallingPercentageFrom52WeekHigh": f'{(obj.stockinformationhistory.fiftytwoweek_high- obj.price) / obj.stockinformationhistory.fiftytwoweek_high:.2f}',
+        #     "ttmPER" : f"{obj.stockinformationhistory.ttmPER:.2f}" if (obj.stockinformationhistory.ttmPER is not None) else None,
+        #     "ttmPSR" : f"{obj.stockinformationhistory.ttmPSR:.2f}" if (obj.stockinformationhistory.ttmPSR is not None) else None,
+        #     "ttmPBR" : f"{obj.stockinformationhistory.ttmPBR:.2f}" if (obj.stockinformationhistory.ttmPBR is not None) else None,
+        #     "ttmPEGR" : f"{obj.stockinformationhistory.ttmPEGR:.2f}" if (obj.stockinformationhistory.ttmPEGR is not None) else None,
+        #     "forwardPER" : f"{obj.stockinformationhistory.forwardPER:.2f}" if (obj.stockinformationhistory.forwardPER is not None) else None,
+        #     "forwardPSR" : f"{obj.stockinformationhistory.forwardPSR:.2f}" if (obj.stockinformationhistory.forwardPSR is not None) else None,
+        #     "marketCap" : f"{obj.stockinformationhistory.marketCap:.2f}" if (obj.stockinformationhistory.marketCap is not None) else None,
+        #     "ttmpEPS" : f"{obj.stockinformationhistory.ttmEPS:.2f}" if (obj.stockinformationhistory.ttmEPS is not None) else None
+        # })
         
 
 class StockYearlyFinancialStatementsAPIView(RetrieveAPIView): 
