@@ -2,9 +2,15 @@
 
 from pathlib import Path
 import os
+import json
 
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
+
+config_file = os.path.join(BASE_DIR, 'config.json')
+with open(config_file) as f:
+    secrets = json.loads(f.read())
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -22,6 +28,7 @@ INSTALLED_APPS = [
     # REST Framework
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     # drf_yasg: django rest framework- Yet another Swagger generator
     'drf_yasg',
     
@@ -69,17 +76,22 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
 }
 
 import datetime
 
+REST_USE_JWT = True
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=3),
-    'SIGNING_KEY': 'SECRET',
+    'SIGNING_KEY': secrets["django_config"]["SECRET_KEY"], # 오름 백엔드 장고 시크릿키
     'ALGORITHM': 'HS256',
-    'AUTH_HEADER_TYPES': ('JWT',),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'TOKEN_USER_CLASS' : 'user.UserList',
 }
 
 MIDDLEWARE = [
