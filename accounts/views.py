@@ -114,7 +114,7 @@ class KakaoLogoutView(APIView):
             # jwt 토큰 검증 with secret KEY
             payload = jwt.decode(access_token, secrets["django_config"]["SECRET_KEY"], algorithms=['HS256'])
         except:
-            response = JsonResponse({"logout" : "false", "user_oruum": {}},
+            response = JsonResponse({"message" : "Logout false", "user_oruum": {}},
                             status=status.HTTP_200_OK
                             )
             return response
@@ -126,9 +126,8 @@ class KakaoLogoutView(APIView):
         header = {"Authorization": f"Bearer ${access_token}"}
         self.logout_id = requests.post(
                 kakao_logout_api, headers=header).json()
-        auth.logout(request)
 
-        response = JsonResponse({"logout" : "success", "user_oruum": UserListSerializers(user).data},
+        response = JsonResponse({"message" : "Logout success", "user_oruum": UserListSerializers(user).data},
                             status=status.HTTP_200_OK
                             )
 
@@ -148,10 +147,11 @@ class UserInformationView(RetrieveAPIView):
         payload = jwt.decode(access_token, secrets["django_config"]["SECRET_KEY"], algorithms=['HS256']) 
         id_jwt = payload["user_id"]
         
-        #####################################################################
+        #############################################################################
         # (11/23) 이런식으로 가지고 있는 토큰이, 조회 요청한 id와 동일한지 체크함
-        # 또는 해당 api 자체를 가지고 있는 토큰을 이용해서 유저의 정보를 보여주는 것으로 바꿔줄 수 있겠음, 현재는 url 파라미터로 유저의 id를 받고 있으니, 받는 부분을 없애겠단 의미
-        #####################################################################
+        # 또는 해당 api 자체를 가지고 있는 토큰을 이용해서 유저의 정보를 보여주는 것으로 바꿔줄 수 있겠음, 
+        # 현재는 url 파라미터로 유저의 id를 받고 있음
+        #############################################################################
         
         if (str(id) == str(id_jwt)):
             obj = self.get_object()

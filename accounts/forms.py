@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 
 # (11/23) 아래 부분은 전부 지워도 됨
 
+'''
 class SignupForm(UserCreationForm):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
@@ -28,3 +29,4 @@ class SignupForm(UserCreationForm):
         user.username = self.cleaned_data['username']
         user.email = self.cleaned_data['email']
         user.save()
+'''
