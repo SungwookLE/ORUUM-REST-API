@@ -47,13 +47,13 @@ urlpatterns = [
 
     path('accounts/', include('accounts.urls')),
     # oauth를 위한 url
-    path('accounts/', include('allauth.urls')),
+    # path('accounts/', include('allauth.urls')),
     
     # dashboard를 위한 url
     path('dashboard/', include('dashboard.urls')),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
     
     # re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view_v1.without_ui(cache_timeout=0), name='schema-json'),
-    # re_path(r'^swagger/$', schema_view_v1.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    re_path(r'^swagger/$', schema_view_v1.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^docs/$', schema_view_v1.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
