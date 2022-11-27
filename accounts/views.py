@@ -79,7 +79,7 @@ class KakaoCallBackView(View):
         kakao_thumbnail_image = self.user_information["kakao_account"]["profile"]["thumbnail_image_url"]
 
         try:
-            user = UserList.objects.get(id=kakao_id)
+            user = UserList.objects.get(id_user=kakao_id)
             user.kakao_access_token = self.kakao_access_token
             user.thumbnail_image = kakao_thumbnail_image
             user.username = kakao_nickname
@@ -87,9 +87,9 @@ class KakaoCallBackView(View):
             user.save()
 
         except UserList.DoesNotExist:
-            UserList.objects.create(id=kakao_id, email=kakao_email, username=kakao_nickname,
+            UserList.objects.create(id_user=kakao_id, email=kakao_email, username=kakao_nickname,
                                     thumbnail_image=kakao_thumbnail_image, kakao_access_token=self.kakao_access_token)
-            user = UserList.objects.get(id=kakao_id)
+            user = UserList.objects.get(id_user=kakao_id)
      
         return user
 
@@ -109,17 +109,22 @@ class KakaoCallBackView(View):
 
 class KakaoLogoutView(APIView):
     def get(self, request):
-        access_token=request.COOKIES.get('oruum_access_token')
+        # http 0.0.0.0:8000/accounts/kakao/logout/ "Authorization: Bearer {access_token}"
+        #access_token=request.COOKIES.get('oruum_access_token')
+
         try:
+            header = request.headers.get('Authorization', None)
+            access_token = re.split(' ', header)[1]
+        
             # jwt 토큰 검증 with secret KEY
             payload = jwt.decode(access_token, secrets["django_config"]["SECRET_KEY"], algorithms=['HS256'])
         except:
-            response = JsonResponse({"message" : "Logout false", "user_oruum": {}},
+            response = JsonResponse({"message" : "Logout false", "user": {}},
                             status=status.HTTP_200_OK
                             )
             return response
 
-        user = UserList.objects.get(id=payload["user_id"])
+        user = UserList.objects.get(id_user=payload["user_id"])
         access_token = user.kakao_access_token
 
         kakao_logout_api = "https://kapi.kakao.com/v1/user/logout"
@@ -127,7 +132,7 @@ class KakaoLogoutView(APIView):
         self.logout_id = requests.post(
                 kakao_logout_api, headers=header).json()
 
-        response = JsonResponse({"message" : "Logout success", "user_oruum": UserListSerializers(user).data},
+        response = JsonResponse({"message" : "Logout success", "user": UserListSerializers(user).data},
                             status=status.HTTP_200_OK
                             )
 
@@ -138,9 +143,9 @@ class KakaoLogoutView(APIView):
 class UserInformationView(RetrieveAPIView):
     permission_classes = (IsAuthenticated,) 
     queryset = UserList.objects.prefetch_related()
-    lookup_field = "id"
+    lookup_field = "id_user"
     
-    def get(self, request, id):
+    def get(self, request, id_user):
         header = request.headers.get('Authorization', None)
         access_token = re.split(' ', header)[1]
         # jwt 토큰 검증 with secret KEY
@@ -153,7 +158,7 @@ class UserInformationView(RetrieveAPIView):
         # 현재는 url 파라미터로 유저의 id를 받고 있음
         #############################################################################
         
-        if (str(id) == str(id_jwt)):
+        if (str(id_user) == str(id_jwt)):
             obj = self.get_object()
 
             portfolio_koreanStock_list = list()
@@ -197,7 +202,7 @@ class UserInformationView(RetrieveAPIView):
                 "deposit": deposit
             })
         else:
-            return Response({"Denied": f"your token don't have authority to retrieve the request id {id}"})
+            return Response({"Denied": f"your token don't have authority to retrieve the request id {id_user}"})
 
 
 class UserListListAPIView(ListAPIView):
@@ -210,7 +215,7 @@ class UserListListAPIView(ListAPIView):
 
 class UserListRetrieveAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated,) 
-    # http 0.0.0.0:8000/accounts/userlist/ "Authorization: Bearer {access_token}"
+    # http 0.0.0.0:8000/accounts/userlist/<int:id_user>/ "Authorization: Bearer {access_token}"
     queryset = UserList.objects.all()
     lookup_field = "id_user"
     serializer_class = UserListSerializers
@@ -218,7 +223,7 @@ class UserListRetrieveAPIView(RetrieveAPIView):
 
 class UserInterestListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,) 
-    # http 0.0.0.0:8000/accounts/userlist/ "Authorization: Bearer {access_token}"
+    # http 0.0.0.0:8000/accounts/userinterest/ "Authorization: Bearer {access_token}"
     queryset = UserInterest.objects.all()
     serializer_class = UserInterestSerializers
     pagination_class = UserPageNumberPagination
@@ -226,6 +231,7 @@ class UserInterestListAPIView(ListAPIView):
 
 class UserPortfolioListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,) 
+    # http 0.0.0.0:8000/accounts/userportfolio/ "Authorization: Bearer {access_token}"
     queryset = UserPortfolio.objects.all()
     serializer_class = UserPortfolioSerializers
     pagination_class = UserPageNumberPagination

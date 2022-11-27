@@ -11,7 +11,7 @@ class UserList(AbstractUser):
     columns are ["email", "username", "update_dt", "create_dt"]
     Create a custom user model by inheriting AbstractUser ...
     """
-    id = models.BigAutoField(help_text="id_userlist", primary_key=True)
+    id_user = models.BigAutoField(help_text="id_userlist", primary_key=True)
     email = models.EmailField(unique=True)
     thumbnail_image = models.CharField(blank=True, null=True, help_text ="프로필 이미지 URL", max_length=200)
     kakao_access_token= models.CharField(blank=True, null=True, max_length=200)
