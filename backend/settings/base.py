@@ -89,6 +89,8 @@ SIMPLE_JWT = {
     'SIGNING_KEY': secrets["django_config"]["SECRET_KEY"], # 오름 백엔드 장고 시크릿키
     'ALGORITHM': 'HS256',
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id_user',
+    'USER_ID_CLAIM': 'user_id',
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'TOKEN_USER_CLASS' : 'user.UserList',

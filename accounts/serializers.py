@@ -7,7 +7,7 @@ from accounts.models import UserList, UserInterest, UserPortfolio, UserWallet
 class UserListSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserList
-        fields = ['id', 'email', 'username', 'thumbnail_image']
+        fields = ['id_user', 'email', 'username', 'thumbnail_image']
 
 
 class UserInterestSerializers(serializers.ModelSerializer):
