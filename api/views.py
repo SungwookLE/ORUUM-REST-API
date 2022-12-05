@@ -100,10 +100,28 @@ class HistoricalStockPriceAPIView(ListAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+        
+        return_dict = dict()
+        return_dict["ticker"] = self.kwargs["ticker"]
+        return_dict["dateArray"] = list()
+        return_dict["closeArray"] = list()
+        return_dict["openArray"] = list()
+        return_dict["highArray"] = list()
+        return_dict["lowArray"] = list()
+        return_dict["volumeArray"] = list()
+        
+        for idx, item in enumerate(serializer.data):
+            iter_dict = json.loads(json.dumps(item))
+            return_dict["dateArray"].append(iter_dict["update_date"])
+            return_dict["closeArray"].append(iter_dict["price_close"])
+            return_dict["openArray"].append(iter_dict["price_open"])
+            return_dict["highArray"].append(iter_dict["price_high"])
+            return_dict["lowArray"].append(iter_dict["price_low"])
+            return_dict["volumeArray"].append(iter_dict["volume"])
 
-        return Response(serializer.data)
+        return Response(return_dict)
 
-
+       
 class StockSummaryAPIView(RetrieveAPIView):
     serializer_class = StockSummarySerializer 
     lookup_field = "ticker"
@@ -120,7 +138,7 @@ class StockSummaryAPIView(RetrieveAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-        print(serializer.data)
+        
         return Response(serializer.data) 
 
 
@@ -158,7 +176,7 @@ class StockQuarterlyFinancialStatementsAPIView(RetrieveAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-
+        
         return Response(serializer.data) 
 
 

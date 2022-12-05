@@ -23,37 +23,12 @@ class StockPriceHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = StockPriceHistory
         fields = '__all__' 
-        
 
-class HistoricalStockPriceSerializer(serializers.ModelSerializer):
-    dateArray = serializers.SerializerMethodField() 
-    closeArray = serializers.SerializerMethodField() 
-    openArray = serializers.SerializerMethodField() 
-    highArray = serializers.SerializerMethodField() 
-    lowArray = serializers.SerializerMethodField() 
-    volumeArray = serializers.SerializerMethodField() 
-    
+
+class HistoricalStockPriceSerializer(serializers.ModelSerializer):    
     class Meta:
         model = StockPriceHistory
-        fields = ["ticker", "dateArray", "closeArray", "openArray", "highArray", "lowArray", "volumeArray"]
-
-    def get_dateArray(self, object): 
-        return object.update_date
-
-    def get_closeArray(self, object): 
-        return object.price_close
-
-    def get_openArray(self, object): 
-        return object.price_open
-    
-    def get_highArray(self, object): 
-        return object.price_high
-    
-    def get_lowArray(self, object): 
-        return object.price_low
-    
-    def get_volumeArray(self, object): 
-        return object.volume
+        fields = ["ticker", "update_date", "price_close", "price_open","price_high","price_low", "volume"]
     
 
 class StockSummarySerializer(serializers.ModelSerializer):
@@ -64,7 +39,6 @@ class StockSummarySerializer(serializers.ModelSerializer):
     currentPrice = serializers.SerializerMethodField()
     dailyChange = serializers.SerializerMethodField()
     dailyChangePercentage = serializers.SerializerMethodField()
-    # 
     fiftytwoWeekHigh = serializers.SerializerMethodField() # 52weekHigh 
     fiftytwoWeekLow = serializers.SerializerMethodField() # 52weekLow 
     fallingPercentageFrom52WeekHigh = serializers.SerializerMethodField() 
