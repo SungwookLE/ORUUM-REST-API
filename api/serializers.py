@@ -25,6 +25,7 @@ class StockPriceHistorySerializer(serializers.ModelSerializer):
         fields = '__all__' 
 
 
+
 class HistoricalStockPriceSerializer(serializers.ModelSerializer):
     dateArray = serializers.SerializerMethodField() 
     closeArray = serializers.SerializerMethodField() 
@@ -39,6 +40,7 @@ class HistoricalStockPriceSerializer(serializers.ModelSerializer):
 
     def get_dateArray(self, object): 
         return object.update_date
+
 
     def get_closeArray(self, object): 
         return object.price_close
@@ -171,8 +173,9 @@ class StockSummarySerializer(serializers.ModelSerializer):
             return f"{object.stockinformationhistory.ttmEPS:.2f}" if (object.stockinformationhistory.ttmEPS is not None) else None
         except ObjectDoesNotExist: 
             return None
-        
     
+
+
 # (10/03) API 요구사항 반영을 위한 신규 REST serializer 생성1
 class StockYearlyFinancialStatementsSerializer(serializers.ModelSerializer): 
     dateArray = serializers.SerializerMethodField()

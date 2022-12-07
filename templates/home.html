@@ -33,9 +33,9 @@
                             Account
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="accounts/userlist/">list</a></li>
-                            <li><a class="dropdown-item" href="accounts/userinterest/">interest</a></li>
-                            <li><a class="dropdown-item" href="accounts/userportfolio/">portfolio</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:userlist-list' %}">list</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:userinterest-list' %}">interest</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:userportfolio-list' %}">portfolio</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -60,8 +60,18 @@
                             <li><a class="dropdown-item" href="dashboard/dash/">dash</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Docs
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="redocs/">reDocs</a></li>
+                            <li><a class="dropdown-item" href="swagger/">swaDocs</a></li>
+
+                            </ul>
+                    </li>
                 </ul>
-                <a href="/accounts/kakao/"><button class="btn"><img class="btn-img" src="{% static 'kakao_login_medium_narrow.png'%}" alt=""></button></a>
+                <a href="/accounts/kakao/login/"><button class="btn"><img class="btn-img" src="{% static 'kakao_login_medium_narrow.png'%}" alt=""></button></a>
             </div>
         </div>
     </nav>

@@ -20,6 +20,7 @@ class StockPriceHistoryAdmin(admin.ModelAdmin):
     search_fields = ['ticker']
     date_hierarchy = 'update_date'
 
+
 @admin.register(StockProfile)
 class StockProfileAdmin(admin.ModelAdmin):
     search_fields = ['ticker']
