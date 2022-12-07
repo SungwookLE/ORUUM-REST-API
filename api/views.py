@@ -100,7 +100,6 @@ class HistoricalStockPriceAPIView(ListAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-
         return_dict = dict()
         return_dict["ticker"] = self.kwargs["ticker"]
         return_dict["dateArray"] = list()
@@ -109,51 +108,39 @@ class HistoricalStockPriceAPIView(ListAPIView):
         return_dict["highArray"] = list()
         return_dict["lowArray"] = list()
         return_dict["volumeArray"] = list()
-
+        
         for idx, item in enumerate(serializer.data):
-            iter_dict = json.loads(json.dumps(item))
-            return_dict["dateArray"].append(iter_dict["update_date"])
-            return_dict["closeArray"].append(iter_dict["price_close"])
-            return_dict["openArray"].append(iter_dict["price_open"])
-            return_dict["highArray"].append(iter_dict["price_high"])
-            return_dict["lowArray"].append(iter_dict["price_low"])
-            return_dict["volumeArray"].append(iter_dict["volume"])
+            iter_dict = item 
+            return_dict["dateArray"].append(iter_dict["dateArray"])
+            return_dict["closeArray"].append(iter_dict["closeArray"])
+            return_dict["openArray"].append(iter_dict["openArray"])
+            return_dict["highArray"].append(iter_dict["highArray"])
+            return_dict["lowArray"].append(iter_dict["lowArray"])
+            return_dict["volumeArray"].append(iter_dict["volumeArray"])
 
         return Response(return_dict)
 
-
+       
 class StockSummaryAPIView(RetrieveAPIView):
-    queryset = StockList.objects.prefetch_related() 
-    lookup_field="ticker"
-    serializer_class = StockSummarySerializer
+    serializer_class = StockSummarySerializer 
+    lookup_field = "ticker"
     
-    def get(self, request, ticker):
-        obj = self.get_object()
-        print(obj)
-        priceUnit = "dollar" if re.search("^NYSE|^Nasdaq", obj.market) else None
+    def get_queryset(self):
+        return StockList.objects.prefetch_related().filter(ticker=self.kwargs["ticker"])
 
-        return Response({
-            'ticker': obj.ticker,
-            'koreanName': obj.name_korea,
-            'englishName': obj.name_english,
-            'tagList': list(),
-            'priceUnit': priceUnit,
-            'currentPrice': f"{obj.price:.2f}" if (obj.price is not None) else None,
-            'dailyChange': f"{obj.price - obj.price_open:.2f}" if (obj.price is not None) & (obj.price_open is not None) else None,
-            'dailyChangePercentage': f"{(obj.price - obj.price_open)/obj.price_open:.2f}" if (obj.price is not None) & (obj.price_open is not None) else None,
-            '52weekHigh': f"{obj.stockinformationhistory.fiftytwoweek_high:.2f}" if (obj.stockinformationhistory.fiftytwoweek_high is not None) else None,
-            '52weekLow': f"{obj.stockinformationhistory.fiftytwoweek_low:.2f}" if (obj.stockinformationhistory.fiftytwoweek_low is not None) else None,
-            "fallingPercentageFrom52WeekHigh": f"{(obj.stockinformationhistory.fiftytwoweek_high - obj.price) / obj.stockinformationhistory.fiftytwoweek_high:.2f}" if (obj.stockinformationhistory.fiftytwoweek_high is not None) else None,
-            "ttmPER" : f"{obj.stockinformationhistory.ttmPER:.2f}" if (obj.stockinformationhistory.ttmPER is not None) else None,
-            "ttmPSR" : f"{obj.stockinformationhistory.ttmPSR:.2f}" if (obj.stockinformationhistory.ttmPSR is not None) else None,
-            "ttmPBR" : f"{obj.stockinformationhistory.ttmPBR:.2f}" if (obj.stockinformationhistory.ttmPBR is not None) else None,
-            "ttmPEGR" : f"{obj.stockinformationhistory.ttmPEGR:.2f}" if (obj.stockinformationhistory.ttmPEGR is not None) else None,
-            "forwardPER" : f"{obj.stockinformationhistory.forwardPER:.2f}" if (obj.stockinformationhistory.forwardPER is not None) else None,
-            "forwardPSR" : f"{obj.stockinformationhistory.forwardPSR:.2f}" if (obj.stockinformationhistory.forwardPSR is not None) else None,
-            "marketCap" : f"{obj.stockinformationhistory.marketCap:.2f}" if (obj.stockinformationhistory.marketCap is not None) else None,
-            "ttmpEPS" : f"{obj.stockinformationhistory.ttmEPS:.2f}" if (obj.stockinformationhistory.ttmEPS is not None) else None
-        })
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        print(queryset)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
         
+        return Response(serializer.data) 
+
 
 class StockYearlyFinancialStatementsAPIView(RetrieveAPIView): 
     serializer_class = StockYearlyFinancialStatementsSerializer
@@ -171,48 +158,7 @@ class StockYearlyFinancialStatementsAPIView(RetrieveAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
 
-        return_dict = dict()
-        return_dict["dateArray"] = list()
-        return_dict["revenueArray"] = list()
-        return_dict["costOfRevenueArray"] = list()
-        return_dict["grossProfit"] = list() 
-        return_dict["operatingExpense"] = list()
-        return_dict["operatingIncome"] = list()
-        return_dict["basicEpsArray"] = list() # ttmEPS
-        return_dict["dilutedEpsArray"] = list() # ttmEPS
-        
-        for idx, item in enumerate(serializer.data):
-            iter_dict = json.loads(json.dumps(item))
-            tmp_dict = json.loads(iter_dict["yearly_income_statement"])
-            try: 
-                tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
-                return_dict["dateArray"] = tmp_dict.keys() 
-            except KeyError: 
-                return_dict["dateArray"] = None 
-            try: 
-                return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
-            except KeyError: 
-                return_dict["revenueArray"] = None 
-            try: 
-                return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]        
-            except KeyError: 
-                return_dict["costOfRevenueArray"] = None 
-            try: 
-                return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
-            except KeyError: 
-                return_dict["grossProfit"] = None 
-            try: 
-                return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
-            except: 
-                return_dict["operatingExpense"] = None 
-            try: 
-                return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
-            except KeyError: 
-                return_dict["operatingIncome"] = None 
-            return_dict["basicEpsArray"].append(iter_dict["ttmEPS"])
-            return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
-
-        return Response(return_dict)
+        return Response(serializer.data) 
 
 
 class StockQuarterlyFinancialStatementsAPIView(RetrieveAPIView):
@@ -230,49 +176,8 @@ class StockQuarterlyFinancialStatementsAPIView(RetrieveAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-
-        return_dict = dict()
-        return_dict["dateArray"] = list()
-        return_dict["revenueArray"] = list()
-        return_dict["costOfRevenueArray"] = list()
-        return_dict["grossProfit"] = list() 
-        return_dict["operatingExpense"] = list()
-        return_dict["operatingIncome"] = list()
-        return_dict["basicEpsArray"] = list() # ttmEPS
-        return_dict["dilutedEpsArray"] = list() # ttmEPS
-
-        for idx, item in enumerate(serializer.data):
-            iter_dict = json.loads(json.dumps(item))
-            tmp_dict = json.loads(iter_dict["quarterly_income_statement"])
-            try: 
-                tmp_dict = {key:tmp_dict[key] for key in sorted(tmp_dict)} 
-                return_dict["dateArray"] = tmp_dict.keys() 
-            except KeyError: 
-                return_dict["dateArray"] = None
-            try: 
-                return_dict["revenueArray"] = [tmp_dict[key]["totalRevenue"] for key in tmp_dict.keys()]
-            except KeyError: 
-                return_dict["revenueArray"] = None 
-            try: 
-                return_dict["costOfRevenueArray"] = [tmp_dict[key]["costOfRevenue"] for key in tmp_dict.keys()]  
-            except KeyError: 
-                return_dict["costOfRevenueArray"] = None
-            try: 
-                return_dict["grossProfit"] = [tmp_dict[key]["grossProfit"] for key in tmp_dict.keys()]  
-            except KeyError: 
-                return_dict["grossProfit"] = None
-            try: 
-                return_dict["operatingExpense"] = [tmp_dict[key]["totalOperatingExpenses"] for key in tmp_dict.keys()]
-            except: 
-                return_dict["operatingExpense"] = None 
-            try: 
-                return_dict["operatingIncome"] = [tmp_dict[key]["operatingIncome"] for key in tmp_dict.keys()]
-            except KeyError: 
-                return_dict["operatingIncome"] = None 
-            return_dict["basicEpsArray"].append(iter_dict["ttmEPS"])
-            return_dict["dilutedEpsArray"].append(iter_dict["ttmEPS"])
-
-        return Response(return_dict)
+        
+        return Response(serializer.data) 
 
 
 class StockProfileAPIView(RetrieveAPIView):
@@ -291,43 +196,4 @@ class StockProfileAPIView(RetrieveAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
 
-        return_dict = dict()
-        return_dict["name"] = list()
-        return_dict["title"] = list()
-        return_dict["pay"] = list()
-        return_dict["age"] = list()
-        return_dict["detailList"] = list()
-
-        for idx, item in enumerate(serializer.data): 
-            iter_dict = json.loads(json.dumps(item))
-            tmp_dict = json.loads(iter_dict["company_officers"]) 
-            ceo_idx = []
-            
-            for idx in range(len(tmp_dict)): 
-                if re.search("CEO", tmp_dict[idx]["title"], re.I): ceo_idx.append(idx) 
-            try: 
-                return_dict["name"] = [tmp_dict[idx]["name"] for idx in ceo_idx]
-            except KeyError: 
-                return_dict["name"] = None
-            for idx in ceo_idx: 
-                try:
-                    return_dict["title"].append(tmp_dict[idx]["title"])
-                except KeyError: 
-                    return_dict["title"].append(None)
-            for idx in ceo_idx: 
-                try:
-                    return_dict["pay"].append(tmp_dict[idx]["totalPay"])
-                except KeyError: 
-                    return_dict["pay"].append(None)
-            for idx in ceo_idx: 
-                try:
-                    return_dict["age"].append(tmp_dict[idx]["age"])
-                except KeyError: 
-                    return_dict["age"].append(None)
-            for idx in ceo_idx: 
-                try:
-                    return_dict["detailList"].append(tmp_dict[idx]["detailList"])
-                except KeyError: 
-                    return_dict["detailList"].append(list())
-
-        return Response(return_dict) 
+        return Response(serializer.data) 
