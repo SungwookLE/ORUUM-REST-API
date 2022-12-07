@@ -9,12 +9,13 @@ import requests
 from tqdm import tqdm
 import datetime
 import re
-from api.models import StockList, StockPriceHistory
 
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.product")
 django.setup()
+
+from api.models import StockList, StockPriceHistory
 
 
 class UpdateStocksFromYahooapi:

@@ -1,7 +1,8 @@
 import pandas as pd
-from stock_info.get_tickers import GetTicker 
 from tqdm import tqdm
 from stock_info.yahoo_stocks_function_set import YahooStockFunctionSet 
+from stock_info.get_tickers import GetTicker 
+
 
 """
 (6/10) 구현 필요한 함수: NOT YET IMPLEMENTED
