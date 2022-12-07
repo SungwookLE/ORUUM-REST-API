@@ -25,10 +25,35 @@ class StockPriceHistorySerializer(serializers.ModelSerializer):
         fields = '__all__' 
 
 
-class HistoricalStockPriceSerializer(serializers.ModelSerializer):    
+class HistoricalStockPriceSerializer(serializers.ModelSerializer):
+    dateArray = serializers.SerializerMethodField() 
+    closeArray = serializers.SerializerMethodField() 
+    openArray = serializers.SerializerMethodField() 
+    highArray = serializers.SerializerMethodField() 
+    lowArray = serializers.SerializerMethodField() 
+    volumeArray = serializers.SerializerMethodField() 
+    
     class Meta:
         model = StockPriceHistory
-        fields = ["ticker", "update_date", "price_close", "price_open","price_high","price_low", "volume"]
+        fields = ["ticker", "dateArray", "closeArray", "openArray", "highArray", "lowArray", "volumeArray"]
+
+    def get_dateArray(self, object): 
+        return object.update_date
+
+    def get_closeArray(self, object): 
+        return object.price_close
+
+    def get_openArray(self, object): 
+        return object.price_open
+    
+    def get_highArray(self, object): 
+        return object.price_high
+    
+    def get_lowArray(self, object): 
+        return object.price_low
+    
+    def get_volumeArray(self, object): 
+        return object.volume
     
 
 class StockSummarySerializer(serializers.ModelSerializer):

@@ -100,7 +100,6 @@ class HistoricalStockPriceAPIView(ListAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-        
         return_dict = dict()
         return_dict["ticker"] = self.kwargs["ticker"]
         return_dict["dateArray"] = list()
@@ -111,13 +110,13 @@ class HistoricalStockPriceAPIView(ListAPIView):
         return_dict["volumeArray"] = list()
         
         for idx, item in enumerate(serializer.data):
-            iter_dict = json.loads(json.dumps(item))
-            return_dict["dateArray"].append(iter_dict["update_date"])
-            return_dict["closeArray"].append(iter_dict["price_close"])
-            return_dict["openArray"].append(iter_dict["price_open"])
-            return_dict["highArray"].append(iter_dict["price_high"])
-            return_dict["lowArray"].append(iter_dict["price_low"])
-            return_dict["volumeArray"].append(iter_dict["volume"])
+            iter_dict = item 
+            return_dict["dateArray"].append(iter_dict["dateArray"])
+            return_dict["closeArray"].append(iter_dict["closeArray"])
+            return_dict["openArray"].append(iter_dict["openArray"])
+            return_dict["highArray"].append(iter_dict["highArray"])
+            return_dict["lowArray"].append(iter_dict["lowArray"])
+            return_dict["volumeArray"].append(iter_dict["volumeArray"])
 
         return Response(return_dict)
 
